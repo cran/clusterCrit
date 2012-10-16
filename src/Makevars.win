@@ -1,0 +1,57 @@
+# ===========================================================================
+# File: "Makevars.win"
+#                        Created: 2012-05-10 18:55:47
+#              Last modification: 2012-11-20 11:44:17
+# Author: Bernard Desgraupes <bernard.desgraupes@u-paris10.fr>
+# This is part of the R package 'clusterCrit'.
+# ===========================================================================
+
+
+PKG_LIBS =  ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}
+
+OBJECTS = ${CLUS_C_OBJ} ${CLUS_F_OBJ}
+
+# Source files
+# ============
+
+# C files
+# -------
+CLUS_C_SRC = criteria.c
+CLUS_C_OBJ = $(CLUS_C_SRC:.c=.o)
+
+# Fortran files
+# -------------
+CLUS_F_SRC = norms.f95 matrix.f95 critUtils.f95 \
+				indices.f95 critCalc.f95
+CLUS_F_OBJ = $(CLUS_F_SRC:.f95=.o)
+
+
+# Sweave files
+# ------------
+CLUS_VIGNETTE_NAME = clusterCrit
+
+
+# Targets
+# =======
+
+all: $(SHLIB)
+
+
+${CLUS_F_OBJ}: ${CLUS_F_SRC}
+	${FC} $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
+
+
+.PHONY: clean vignette
+
+
+clean:
+	rm -f *.o *.so *.mod src/Makevars
+	rm -f ../config.log ../config.status
+	if test -e ../autom4te.cache; then \
+		rm -rf ../autom4te.cache/*; \
+		rmdir ../autom4te.cache; \
+	fi
+	cd ../inst/doc/; \
+	rm -f *.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz}
+
+

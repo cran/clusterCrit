@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# ===========================================================================
+# File: "cleanup"
+#                        Created: 2010-06-24 08:46:27
+#              Last modification: 2012-10-16 13:39:30
+# Author: Bernard Desgraupes
+# e-mail: <bernard.desgraupes@u-paris10.fr>
+# ===========================================================================
+
+# The (Bourne shell) script cleanup is executed as last thing by R CMD
+# INSTALL if present and option --clean was given, and by R CMD build when
+# preparing the package for building from its source. 
+
+rm -f src/*.{o,so,mod}
+rm -f src/Makevars
+rm -f config.{log,status}
+if test -e autom4te.cache; then \
+	rm -rf autom4te.cache/*; \
+	rmdir autom4te.cache; \
+fi
+rm -f inst/doc/*.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz} 
