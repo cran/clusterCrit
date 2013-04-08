@@ -11,7 +11,7 @@
 
 test.bestCriterion <- function() {
 	
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 
 	crits <- getCriteriaNames(TRUE)

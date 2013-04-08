@@ -10,7 +10,7 @@
 
 
 test.sd_dis <- function() {
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- intCriteria(traj_400_4, part_400_4[[4]], c("SD_Dis"))
 	cat(paste("\nFound idx =",idx))

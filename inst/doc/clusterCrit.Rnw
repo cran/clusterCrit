@@ -52,7 +52,7 @@
 \author{Bernard Desgraupes\\
 University Paris Ouest\\
 Lab Modal'X}
-\date{\small October 2012}
+\date{\small April 2013}
 
 \maketitle
 
@@ -1341,7 +1341,7 @@ partition and indeed the data clearly belong to four distinct groups.
 \begin{center}
 <<echo=FALSE, fig=TRUE, width=16,height=8>>=
     library(clusterCrit)
-    dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+    dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
     load(file=dataPath, envir=.GlobalEnv)
     traj <- traj_400_4
     part <- part_400_4

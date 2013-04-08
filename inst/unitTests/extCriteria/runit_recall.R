@@ -10,7 +10,7 @@
 
 
 test.recall <- function() {
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- extCriteria(clus_p2, clus_p3, c("Recall"))
 	cat(paste("\nShould be =",0.34433576464653,"\n"))

@@ -10,7 +10,7 @@
 
 
 test.ratkowsky_lance <- function() {
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- intCriteria(traj_400_4, part_400_4[[4]], c("Ratkowsky_Lance"))
 	cat(paste("\nFound idx =",idx))

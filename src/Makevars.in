@@ -61,6 +61,8 @@ clean:
 	fi
 	cd ../inst/doc/; \
 	rm -f *.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz}
+	# Hidden files
+	rm -f .tex .DS_Store
 
 
 vignette:

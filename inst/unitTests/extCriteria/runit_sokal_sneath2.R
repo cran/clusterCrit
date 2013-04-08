@@ -10,7 +10,7 @@
 
 
 test.sokal_sneath2 <- function() {
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- extCriteria(clus_p2, clus_p3, c("Sokal_Sneath2"))
 	cat(paste("\nShould be =",0.611727799227799,"\n"))
