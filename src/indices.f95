@@ -859,7 +859,7 @@ SUBROUTINE cluc_crit_czekanowski_dice(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(2*sNTb(1,1))/(2*sNTb(1,1)+sNTb(1,2)+sNTb(2,1))
     
 END SUBROUTINE cluc_crit_czekanowski_dice
@@ -877,7 +877,7 @@ SUBROUTINE cluc_crit_folkes_mallows(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = sqrt( real(sNTb(1,1))/(sNTb(1,1) + sNTb(1,2)) ) * sqrt( real(sNTb(1,1))/(sNTb(1,1) + sNTb(2,1)) )
    
 END SUBROUTINE cluc_crit_folkes_mallows
@@ -895,8 +895,8 @@ SUBROUTINE cluc_crit_hubert(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real( sum(sNTb) * sNTb(1,1) - (sNTb(1,1) + sNTb(1,2))*(sNTb(1,1) + sNTb(2,1)) ) 
       v = v / ( sqrt(real(sNTb(1,1)+sNTb(1,2))) * sqrt(real(sNTb(1,1)+sNTb(2,1))) )
       v = v / ( sqrt(real(sNTb(1,2)+sNTb(2,2))) * sqrt(real(sNTb(2,1)+sNTb(2,2))) )
@@ -916,7 +916,7 @@ SUBROUTINE cluc_crit_jaccard(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1))/(sNTb(1,1) + sNTb(1,2) + sNTb(2,1))
     
 END SUBROUTINE cluc_crit_jaccard
@@ -934,7 +934,7 @@ SUBROUTINE cluc_crit_kulczynski(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1))/(sNTb(1,1)+sNTb(1,2)) + real(sNTb(1,1))/(sNTb(1,1)+sNTb(2,1))
       v=v/2
       
@@ -953,7 +953,7 @@ SUBROUTINE cluc_crit_mcnemar(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(2,2) - sNTb(2,1))/sqrt(real(sNTb(2,2) + sNTb(2,1)))
     
 END SUBROUTINE cluc_crit_mcnemar
@@ -976,7 +976,7 @@ SUBROUTINE cluc_crit_phi(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1)*sNTb(2,2) - sNTb(1,2)*sNTb(2,1)) 
       v = v / ( (sNTb(1,1)+sNTb(1,2)) * (sNTb(1,1)+sNTb(2,1)) )
       v = v / ( (sNTb(1,2)+sNTb(2,2)) * (sNTb(2,1)+sNTb(2,2)) )
@@ -996,7 +996,7 @@ SUBROUTINE cluc_crit_precision(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1))/(sNTb(1,1)+sNTb(2,1))
     
 END SUBROUTINE cluc_crit_precision
@@ -1014,7 +1014,7 @@ SUBROUTINE cluc_crit_rand(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1) + sNTb(2,2))/sum(sNTb)
     
 END SUBROUTINE cluc_crit_rand
@@ -1032,7 +1032,7 @@ SUBROUTINE cluc_crit_recall(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1))/(sNTb(1,1)+sNTb(1,2))
     
 END SUBROUTINE cluc_crit_recall
@@ -1050,7 +1050,7 @@ SUBROUTINE cluc_crit_russel_rao(p1,p2,v)
       integer, intent(in), dimension(sNr) :: p1, p2
       double precision, intent(out) :: v
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       v = real(sNTb(1,1))/sum(sNTb)
     
 END SUBROUTINE cluc_crit_russel_rao
@@ -1068,7 +1068,7 @@ SUBROUTINE cluc_crit_rogers_tanimoto(p1,p2,v)
       double precision, intent(out) :: v
       double precision :: num, den
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       num = real(sNTb(1,1) + sNTb(2,2))/2
       den = num + sNTb(1,2) + sNTb(1,2)
       v = num/den
@@ -1089,7 +1089,7 @@ SUBROUTINE cluc_crit_sokal_sneath1(p1,p2,v)
       double precision, intent(out) :: v
       double precision :: num, den
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       num = real(sNTb(1,1))/2
       den = num + sNTb(1,2) + sNTb(1,2)
       v = num/den
@@ -1110,7 +1110,7 @@ SUBROUTINE cluc_crit_sokal_sneath2(p1,p2,v)
       double precision, intent(out) :: v
       double precision :: num, den
         
-      call cluc_cross_counts(p1,p2)
+      call cluc_cross_counts(p1,p2,sNr)
       num = (sNTb(1,1) + sNTb(2,2))*2
       den = num + sNTb(1,2) + sNTb(1,2)
       v = real(num)/den

@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critUtils.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2012-10-20 17:51:40
+!              Last modification: 2013-04-20 10:54:25
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -115,7 +115,6 @@ SUBROUTINE cluc_crit_int_init (nr,nc,nk)
     nullify(pDetW)
     nullify(pDetT)
     nullify(pScat)
-
     sNr = nr
     sNc = nc
     sNk = nk
@@ -192,7 +191,7 @@ END SUBROUTINE  cluc_crit_ext_dispose
 
 SUBROUTINE cluc_alloc_arrays(p,e)
       IMPLICIT NONE
-       integer, intent(in), dimension(sNr) :: p
+      integer, intent(in), dimension(sNr) :: p
       integer, intent(out) :: e
       double precision :: nrm
       integer :: i, j, pk
@@ -896,6 +895,7 @@ END SUBROUTINE  cluc_pairs_sum_minmax
 ! 
 ! p1		first partition vector
 ! p2		second partition vector
+! n			length of partition vectors
 ! 
 ! Given two partitions, calculate the number of pairs belonging or not belonging
 ! to the same cluster wrt partition P1 or P2. The values are returned in the
@@ -911,18 +911,16 @@ END SUBROUTINE  cluc_pairs_sum_minmax
 
 SUBROUTINE cluc_cross_counts(p1,p2,n)
       IMPLICIT NONE
-      integer, intent(in), dimension(sNr) :: p1, p2
-      integer, intent(in), optional :: n
-      integer :: i, j, pn, nr
+      integer, intent(in) :: n
+      integer, intent(in), dimension(n) :: p1, p2
+      integer :: i, j, pn
      
       IF (.not.allocated(sNTb)) THEN
          allocate( sNTb(2,2) )
-         
-         IF (present(n)) THEN; nr = n; ELSE; nr = sNr; END IF
          sNTb = 0
          
-         DO i=1,nr-1
-            DO j=i+1,nr
+         DO i=1,n-1
+            DO j=i+1,n
                IF (p1(i) == p1(j)) THEN
                   IF (p2(i) == p2(j)) THEN
                      sNTb(1,1) = sNTb(1,1) + 1
@@ -1017,12 +1015,12 @@ END SUBROUTINE  cluc_points_bary_distances
 ! ---------------------------------------------------------------------------
 
 SUBROUTINE cluc_pairwise_distances(x,p,n,e)
-      IMPLICIT NONE
+    IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       real, intent(in) :: n
       integer, intent(out) :: e
-      integer :: i, j, k, idx, pn, wix, bix
+      integer :: i, j, k, idx, pn, wix, bix, p1, p2
       logical :: hWgSum, hWgMax, &
                  hBgMax, hBgMin, hBgSum, &
                  hDists, hPtCls
@@ -1063,8 +1061,12 @@ SUBROUTINE cluc_pairwise_distances(x,p,n,e)
                END IF
             ELSE
                ! Points do not belong to the same cluster
-               idx = p(i) + (p(j)-1)*(p(j)-2)/2
+               p1 = min(p(i),p(j))
+               p2 = max(p(i),p(j))
+               idx = p1 + ((p2-1)*(p2-2))/2
                IF (hBgMin) THEN
+                   IF (idx > (sNk*(sNk-1))/2) THEN
+               END IF
                   sBgPairsMin(idx) = min( sBgPairsMin(idx), nrm)
                END IF
                IF (hBgMax) THEN

@@ -174,7 +174,7 @@ TSS=\Tr(T)=N\sum_{j=1}^p\Var(V_{j})
 \emph{Geometric interpretation}: let us denote by $M_{1},\dots,M_{N}$
 the points of the space $\R^p$ representing all the observations:
 the coordinates of $M_{i}$ are the coefficients of the $i$-th row of
-the datat matrix $A$. Similarly, let us denote by $G$ the barycenter of these
+the data matrix $A$. Similarly, let us denote by $G$ the barycenter of these
 points: its coordinates are the coefficients of the vector $\mu$. One can
 easily prove the following relations:
 \begin{eqnarray}

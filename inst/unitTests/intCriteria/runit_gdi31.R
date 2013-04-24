@@ -14,8 +14,8 @@ test.gdi31 <- function() {
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- intCriteria(traj_400_4, part_400_4[[4]], c("GDI31"))
 	cat(paste("\nFound idx =",idx))
-	cat(paste("\nShould be =",0.883399952390134,"\n"))
-	checkEqualsNumeric(idx[[1]],0.883399952390134)
+	cat(paste("\nShould be =",1.78341037894133,"\n"))
+	checkEqualsNumeric(idx[[1]],1.78341037894133)
 }
 
 

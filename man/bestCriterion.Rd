@@ -67,7 +67,7 @@ for (k in 2:6) {
     vals <- c(vals,as.numeric(intCriteria(x,cl$cluster,"Calinski_Harabasz")))
 }
 idx <- bestCriterion(vals,"Calinski_Harabasz")
-cat("Best index value is",vals[idx])
+cat("Best index value is",vals[idx],"\n")
 }
 
 

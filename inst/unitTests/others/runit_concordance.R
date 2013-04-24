@@ -24,7 +24,7 @@ test.concordance <- function() {
 	colnames(expect) <- c("y","n")
 	rownames(expect) <- c("y","n")
 	result <- concordance(as.integer(part1),as.integer(part2))
-	
+
 	checkEquals(result,expect)
 }
 

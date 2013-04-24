@@ -63,7 +63,7 @@ if (require("rbenchmark", quietly = TRUE)) {
     kind <- res[[2]]
     
     if (kind=="internal") {
-	dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+	dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
 	load(file=dataPath, envir=.GlobalEnv)
 	df <- benchmark(
 	    intCriteria(traj_400_4, part_400_4[[4]], c(critName)),
@@ -72,7 +72,7 @@ if (require("rbenchmark", quietly = TRUE)) {
 	)	    
 	print(df)
     } else {
-    dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
+    dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
     load(file=dataPath, envir=.GlobalEnv)
 	df <- benchmark(
 	    extCriteria(clus_p2, clus_p3, c(critName)),

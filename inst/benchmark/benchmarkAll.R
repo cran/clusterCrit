@@ -13,7 +13,7 @@ pkg <- "clusterCrit"
 if (require("rbenchmark", quietly = TRUE)) {
     library(package=pkg, character.only = TRUE)
 
-    dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+    dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
     load(file=dataPath, envir=.GlobalEnv)
 
     # Internal indices
@@ -70,7 +70,7 @@ if (require("rbenchmark", quietly = TRUE)) {
 	print(df)
 
     # External indices
-    dataPath <- file.path(.path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
+    dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsExternal100.Rdata")
     load(file=dataPath, envir=.GlobalEnv)
 	
     names <- c("all",getCriteriaNames(FALSE))

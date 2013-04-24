@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "runit_gdi22.R"
 #                        Created: 2012-11-13 11:28:57
-#              Last modification: 2012-11-13 11:28:57
+#              Last modification: 2013-04-20 11:07:09
 # Author: Bernard Desgraupes
 # e-mail: <>
 # Unit test file for the R package clusterCrit.
@@ -14,8 +14,8 @@ test.gdi22 <- function() {
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- intCriteria(traj_400_4, part_400_4[[4]], c("GDI22"))
 	cat(paste("\nFound idx =",idx))
-	cat(paste("\nShould be =",15.5193979974125,"\n"))
-	checkEqualsNumeric(idx[[1]],15.5193979974125)
+	cat(paste("\nShould be =",15.8152471473492,"\n"))
+	checkEqualsNumeric(idx[[1]],15.8152471473492)
 }
 
 

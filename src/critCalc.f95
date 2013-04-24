@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critCalc.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2012-11-12 21:29:57
+!              Last modification: 2013-04-24 17:05:36
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -12,15 +12,21 @@
 ! -----------
 !    cf cluc_errorMsg()
 
+! Note on strings comparison (cf. Fortran 90 Handbook, section 7.3.1.2):
+!     << When the operands are both of type character, the shorter one is padded
+!     on the right with blank padding characters until the operands are of equal
+!     length. Then, the operands are compared one character at a time in order,
+!     starting from the leftmost character of each operand until the
+!     corresponding characters differ. >>
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_calc_int_criterion(x,p,cn,cl,e,v)" --
+! "SUBROUTINE cluc_calc_int_criterion(x,p,cl,cn,e,v)" --
 ! 
 !       x	in		data matrix (of size nr x nc)
 !       p	in		partition vector (of length nr)
-!       cn	in		criterion name
 !       cl	in		criterion length
+!       cn	in		criterion name
 !       e	out		error code (0 for no error)
 !       v	out		criterion value
 ! 
@@ -28,7 +34,7 @@
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_calc_int_criterion(x,p,cn,cl,e,v)
+SUBROUTINE cluc_calc_int_criterion(x,p,cl,cn,e,v)
     use indices
 ! use timer
 ! use logFile
@@ -36,7 +42,7 @@ SUBROUTINE cluc_calc_int_criterion(x,p,cn,cl,e,v)
     double precision, intent(in), dimension(sNr,sNc) :: x
     integer, intent(in), dimension(sNr) :: p
     integer, intent(in) :: cl
-    character (len=cl), intent(in) :: cn
+    character (len=32), intent(in) :: cn
     integer, intent(out) :: e
     double precision, intent(out) :: v
     integer :: i, rep
@@ -44,12 +50,12 @@ SUBROUTINE cluc_calc_int_criterion(x,p,cn,cl,e,v)
     v = 0.0
     rep = 1
     e = 0
-    
+
 !     IF (sTiming) THEN
 !        call startTimer
 !        rep = 10000
 !     END IF
-    
+
     !! Compute the criterion
     DO i=1,rep
        IF (cn == "ball_hall") THEN
@@ -130,23 +136,23 @@ END SUBROUTINE cluc_calc_int_criterion
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_int_set_flags(cn,cl)" --
+! "SUBROUTINE cluc_int_set_flags(cl,cn)" --
 ! 
-!       cn	in		criterion name
 !       cl	in		criterion length
+!       cn	in		criterion name
 ! 
 ! Set the flags to determine which quantities will have to be calculated.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_int_set_flags(cn,cl)
+SUBROUTINE cluc_int_set_flags(cl,cn)
     use critUtils 
-
+! use logFile
     IMPLICIT NONE
     integer, intent(in) :: cl
-    character (len=cl), intent(in) :: cn
+    character (len=32), intent(in) :: cn
     integer :: i, c1, c2
-
+     
     IF (cn == "ball_hall") THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
     ELSE IF (cn == "banfeld_raftery") THEN
@@ -275,12 +281,12 @@ END SUBROUTINE cluc_int_precalc
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_calc_ext_criterion(p1,p2,cn,cl,e,v)" --
+! "SUBROUTINE cluc_calc_ext_criterion(p1,p2,cl,cn,e,v)" --
 ! 
 !       p1	in		first partition vector (of length nr)
 !       p2	in		second partition vector (of length nr)
-!       cn	in		criterion name
 !       cl	in		criterion length
+!       cn	in		criterion name
 !       e	out		error code (0 for no error)
 !       v	out		criterion value
 ! 
@@ -288,18 +294,18 @@ END SUBROUTINE cluc_int_precalc
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_calc_ext_criterion(p1,p2,cn,cl,e,v)
+SUBROUTINE cluc_calc_ext_criterion(p1,p2,cl,cn,e,v)
     use indices
 !     use timer
 
     IMPLICIT NONE
     integer, intent(in), dimension(sNr) :: p1, p2
     integer, intent(in) :: cl
-    character (len=cl), intent(in) :: cn
+    character (len=32), intent(in) :: cn
     integer, intent(out) :: e
     double precision, intent(out) :: v
     integer :: i, rep
-    
+
     v = 0.0
     rep = 1
     e = 0
@@ -310,33 +316,33 @@ SUBROUTINE cluc_calc_ext_criterion(p1,p2,cn,cl,e,v)
 !     END IF
  
     DO i=1,rep
-       IF ( cn == "czekanowski_dice") THEN
+       IF (cn == "czekanowski_dice") THEN
           call cluc_crit_czekanowski_dice(p1,p2,v)
-       ELSE IF ( cn == "folkes_mallows") THEN
+       ELSE IF (cn == "folkes_mallows") THEN
           call cluc_crit_folkes_mallows(p1,p2,v)
        ELSE IF (cn == "hubert") THEN
           call cluc_crit_hubert(p1,p2,v)
        ELSE IF (cn == "jaccard") THEN
           call cluc_crit_jaccard(p1,p2,v)
-       ELSE IF ( cn == "kulczynski") THEN
+       ELSE IF (cn == "kulczynski") THEN
           call cluc_crit_kulczynski(p1,p2,v) 
        ELSE IF (cn == "mcnemar") THEN
           call cluc_crit_mcnemar(p1,p2,v)
        ELSE IF (cn == "phi") THEN
           call cluc_crit_phi(p1,p2,v)
-       ELSE IF ( cn == "precision") THEN
+       ELSE IF (cn == "precision") THEN
           call cluc_crit_precision(p1,p2,v) 
        ELSE IF (cn == "rand") THEN
           call cluc_crit_rand(p1,p2,v)
-       ELSE IF ( cn == "recall") THEN
+       ELSE IF (cn == "recall") THEN
           call cluc_crit_recall(p1,p2,v) 
-       ELSE IF ( cn == "rogers_tanimoto") THEN
+       ELSE IF (cn == "rogers_tanimoto") THEN
           call cluc_crit_rogers_tanimoto(p1,p2,v)
        ELSE IF (cn == "russel_rao") THEN
           call cluc_crit_russel_rao(p1,p2,v)
-       ELSE IF ( cn == "sokal_sneath1") THEN
+       ELSE IF (cn == "sokal_sneath1") THEN
           call cluc_crit_sokal_sneath1(p1,p2,v)
-       ELSE IF ( cn == "sokal_sneath2") THEN
+       ELSE IF (cn == "sokal_sneath2") THEN
           call cluc_crit_sokal_sneath2(p1,p2,v)
        ELSE
           e = 1

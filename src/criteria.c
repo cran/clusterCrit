@@ -2,7 +2,7 @@
  * ===========================================================================
  * File: "criteria.c"
  *                        Created: 2010-04-26 08:31:04
- *              Last modification: 2012-11-20 11:36:59
+ *              Last modification: 2013-04-24 16:22:43
  * Author: Bernard Desgraupes
  * e-mail: <bernard.desgraupes@u-paris10.fr>
  * This is part of the R package 'clusterCrit'.
@@ -19,6 +19,7 @@
 
 #include "criteria.h"
 
+#define CRIT_MAX_LENGTH 32
 
 SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 {
@@ -28,7 +29,10 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 	double			critVal;
 	double			*traj;
 	SEXP			result;
-	const char * 	critName;
+	const char * 	str;
+	char			critName[CRIT_MAX_LENGTH+1];
+	
+	critName[CRIT_MAX_LENGTH] = 0;
 	
 	PROTECT(inTraj);
 	PROTECT(inPart);
@@ -71,9 +75,11 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 	/* First pass to set the flags */
 	for (i = 0; i < nbCrit; i++) {
 		if (STRING_ELT(inCrit, i) != NA_STRING) {
-			critName = CHAR(STRING_ELT(inCrit, i));
-			critLen = strlen(critName);			
-			F77_CALL(cluc_int_set_flags)(critName, &critLen);
+			str = CHAR(STRING_ELT(inCrit, i));
+			critLen = strlen(str);			
+			memset(critName,' ',CRIT_MAX_LENGTH);
+			memcpy(critName,str,critLen);
+			F77_CALL(cluc_int_set_flags)(&critLen, critName);			
 		}		
 	}
 	
@@ -85,11 +91,12 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 		for (i = 0; i < nbCrit; i++) {
 			critVal = R_NaReal;
 			if (STRING_ELT(inCrit, i) != NA_STRING) {
-				critName = CHAR(STRING_ELT(inCrit, i));
-				critLen = strlen(critName);			
-				F77_CALL(cluc_calc_int_criterion)(traj, part, critName, &critLen, &err, &critVal);
+				str = CHAR(STRING_ELT(inCrit, i));
+				critLen = strlen(str);			
+				memset(critName,' ',CRIT_MAX_LENGTH);
+				memcpy(critName,str,critLen);
+				F77_CALL(cluc_calc_int_criterion)(traj, part, &critLen, critName, &err, &critVal);
 				if (err != 0) {
-					//Rf_error("cluscrit: error calculating '%s' criterion\n", critName);
 					break;
 				} 
 			}		
@@ -115,7 +122,10 @@ SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 	int				*part1, *part2;
 	double			critVal;
 	SEXP			result;
-	const char * 	critName;
+	const char * 	str;
+	char			critName[CRIT_MAX_LENGTH+1];
+	
+	critName[CRIT_MAX_LENGTH] = 0;
 	
 	PROTECT(inPart1);
 	PROTECT(inPart2);
@@ -159,11 +169,12 @@ SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 	for (i = 0; i < nbCrit; i++) {
 		critVal = R_NaReal;
 		if (STRING_ELT(inCrit, i) != NA_STRING) {
-			critName = CHAR(STRING_ELT(inCrit, i));
-			critLen = strlen(critName);			
-			F77_CALL(cluc_calc_ext_criterion)(part1, part2, critName, &critLen, &err, &critVal);
+			str = CHAR(STRING_ELT(inCrit, i));
+			critLen = strlen(str);			
+			memset(critName,' ',CRIT_MAX_LENGTH);
+			memcpy(critName,str,critLen);
+			F77_CALL(cluc_calc_ext_criterion)(part1, part2, &critLen, critName, &err, &critVal);
 			if (err != 0) {
-				//Rf_error("cluscrit: error calculating '%s' criterion\n", critName);
 				break;
 			} 
 		}		

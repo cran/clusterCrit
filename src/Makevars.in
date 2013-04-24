@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "Makevars.in"
 #                        Created: 2012-05-10 18:55:47
-#              Last modification: 2012-11-20 11:44:22
+#              Last modification: 2013-04-24 17:52:29
 # Author: Bernard Desgraupes <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
 # ===========================================================================
@@ -24,13 +24,8 @@ CLUS_C_OBJ = $(CLUS_C_SRC:.c=.o)
 
 # Fortran files
 # -------------
-ifdef CLUSTERCRIT_DEBUGGING
-CLUS_F_SRC = logFile.f95 timer.f95 norms.f95 matrix.f95 critUtils.f95 \
-				indices.f95 critCalc.f95
-else
-CLUS_F_SRC = norms.f95 matrix.f95 critUtils.f95 \
-				indices.f95 critCalc.f95
-endif
+# CLUS_F_SRC = logFile.f95 timer.f95 norms.f95 matrix.f95 critUtils.f95 indices.f95 critCalc.f95
+CLUS_F_SRC = norms.f95 matrix.f95 critUtils.f95 indices.f95 critCalc.f95
 CLUS_F_OBJ = $(CLUS_F_SRC:.f95=.o)
 
 
@@ -46,7 +41,7 @@ all: $(SHLIB)
 
 
 ${CLUS_F_OBJ}: ${CLUS_F_SRC}
-	${FC} $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
+	${FC}  $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
 
 
 .PHONY: clean vignette
