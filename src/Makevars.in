@@ -1,10 +1,11 @@
 # ===========================================================================
 # File: "Makevars.in"
 #                        Created: 2012-05-10 18:55:47
-#              Last modification: 2013-04-24 17:52:29
+#              Last modification: 2013-06-12 16:49:14
 # Author: Bernard Desgraupes <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
 # ===========================================================================
+#  -fbounds-check
 
 # Substitutable variables
 # =======================
@@ -41,7 +42,7 @@ all: $(SHLIB)
 
 
 ${CLUS_F_OBJ}: ${CLUS_F_SRC}
-	${FC}  $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
+	${FC} $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
 
 
 .PHONY: clean vignette

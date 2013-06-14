@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critCalc.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2013-04-24 17:05:36
+!              Last modification: 2013-06-12 16:12:11
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -12,21 +12,14 @@
 ! -----------
 !    cf cluc_errorMsg()
 
-! Note on strings comparison (cf. Fortran 90 Handbook, section 7.3.1.2):
-!     << When the operands are both of type character, the shorter one is padded
-!     on the right with blank padding characters until the operands are of equal
-!     length. Then, the operands are compared one character at a time in order,
-!     starting from the leftmost character of each operand until the
-!     corresponding characters differ. >>
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_calc_int_criterion(x,p,cl,cn,e,v)" --
+! "SUBROUTINE cluc_calc_int_criterion(x,p,ci,e,v)" --
 ! 
 !       x	in		data matrix (of size nr x nc)
 !       p	in		partition vector (of length nr)
-!       cl	in		criterion length
-!       cn	in		criterion name
+!       ci	in		criterion index
 !       e	out		error code (0 for no error)
 !       v	out		criterion value
 ! 
@@ -34,15 +27,14 @@
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_calc_int_criterion(x,p,cl,cn,e,v)
+SUBROUTINE cluc_calc_int_criterion(x,p,ci,e,v)
     use indices
 ! use timer
 ! use logFile
     IMPLICIT NONE
     double precision, intent(in), dimension(sNr,sNc) :: x
     integer, intent(in), dimension(sNr) :: p
-    integer, intent(in) :: cl
-    character (len=32), intent(in) :: cn
+    integer, intent(in) :: ci
     integer, intent(out) :: e
     double precision, intent(out) :: v
     integer :: i, rep
@@ -58,67 +50,89 @@ SUBROUTINE cluc_calc_int_criterion(x,p,cl,cn,e,v)
 
     !! Compute the criterion
     DO i=1,rep
-       IF (cn == "ball_hall") THEN
+       IF (ci == 0) THEN
           call cluc_crit_ball_hall(x,p,v)
-       ELSE IF (cn == "banfeld_raftery") THEN
+       ELSE IF (ci == 1) THEN
           call cluc_crit_banfeld_raftery(x,p,v)
-       ELSE IF (cn == "c_index") THEN
+       ELSE IF (ci == 2) THEN
           call cluc_crit_c_index(x,p,v)
-      ELSE IF (cn == "calinski_harabasz") THEN
+       ELSE IF (ci == 3) THEN
           call cluc_crit_calinski_harabasz(x,p,v)
-       ELSE IF (cn == "davies_bouldin") THEN
+       ELSE IF (ci == 4) THEN
           call cluc_crit_davies_bouldin(x,p,v)
-       ELSE IF (cn == "det_ratio") THEN
+       ELSE IF (ci == 5) THEN
           call cluc_crit_det_ratio(x,p,v)
-       ELSE IF (cn == "dunn") THEN
+       ELSE IF (ci == 6) THEN
           call cluc_crit_dunn(x,p,v)
-       ELSE IF (cn == "gamma") THEN
-          call cluc_crit_gamma(x,p,v)
-       ELSE IF (cn == "g_plus") THEN
+       ELSE IF (ci == 7) THEN
           call cluc_crit_g_plus(x,p,v)
-      ELSE IF ( index(cn,"gdi") == 1 ) THEN
-          IF (cl == 3) THEN
+       ELSE IF (ci == 8) THEN
+          call cluc_crit_gamma(x,p,v)
+       ELSE IF (ci == 9) THEN
              call cluc_crit_gdi(x,p,1,1,e,v)
-          ELSE IF (cl == 5) THEN
-             call cluc_crit_gdi(x,p,iachar(cn(4:4))-48,iachar(cn(5:5))-48,e,v)
-          ELSE
-             e = 2
-          END IF
-       ELSE IF (cn == "ksq_detw") THEN
+       ELSE IF (ci == 10) THEN
+             call cluc_crit_gdi(x,p,1,2,e,v)
+       ELSE IF (ci == 11) THEN
+             call cluc_crit_gdi(x,p,1,3,e,v)
+       ELSE IF (ci == 12) THEN
+             call cluc_crit_gdi(x,p,2,1,e,v)
+       ELSE IF (ci == 13) THEN
+             call cluc_crit_gdi(x,p,2,2,e,v)
+       ELSE IF (ci == 14) THEN
+             call cluc_crit_gdi(x,p,2,3,e,v)
+       ELSE IF (ci == 15) THEN
+             call cluc_crit_gdi(x,p,3,1,e,v)
+       ELSE IF (ci == 16) THEN
+             call cluc_crit_gdi(x,p,3,2,e,v)
+       ELSE IF (ci == 17) THEN
+             call cluc_crit_gdi(x,p,3,3,e,v)
+       ELSE IF (ci == 18) THEN
+             call cluc_crit_gdi(x,p,4,1,e,v)
+       ELSE IF (ci == 19) THEN
+             call cluc_crit_gdi(x,p,4,2,e,v)
+       ELSE IF (ci == 20) THEN
+             call cluc_crit_gdi(x,p,4,3,e,v)
+       ELSE IF (ci == 21) THEN
+             call cluc_crit_gdi(x,p,5,1,e,v)
+       ELSE IF (ci == 22) THEN
+             call cluc_crit_gdi(x,p,5,2,e,v)
+       ELSE IF (ci == 23) THEN
+             call cluc_crit_gdi(x,p,5,3,e,v)
+       ELSE IF (ci == 24) THEN
           call cluc_crit_ksq_detw(x,p,v)
-       ELSE IF (cn == "log_det_ratio") THEN
+       ELSE IF (ci == 25) THEN
           call cluc_crit_log_det_ratio(x,p,v)
-       ELSE IF (cn == "log_ss_ratio") THEN
+       ELSE IF (ci == 26) THEN
           call cluc_crit_log_ss_ratio(x,p,v)
-       ELSE IF (cn == "mcclain_rao") THEN
+       ELSE IF (ci == 27) THEN
           call cluc_crit_mcclain_rao(x,p,v)
-       ELSE IF (cn == "pbm") THEN
+       ELSE IF (ci == 28) THEN
           call cluc_crit_pbm(x,p,v)
-       ELSE IF (cn == "point_biserial") THEN
+       ELSE IF (ci == 29) THEN
           call cluc_crit_point_biserial(x,p,v)
-       ELSE IF (cn == "ratkowsky_lance") THEN
+       ELSE IF (ci == 30) THEN
           call cluc_crit_ratkowsky_lance(x,p,v)
-       ELSE IF (cn == "ray_turi") THEN
+       ELSE IF (ci == 31) THEN
           call cluc_crit_ray_turi(x,p,v)
-       ELSE IF (cn == "scott_symons") THEN
+       ELSE IF (ci == 33) THEN
           call cluc_crit_scott_symons(x,p,v)
-       ELSE IF (cn == "sd_dis") THEN
+       ELSE IF (ci == 34) THEN
           call cluc_crit_sd_dis(x,p,v)
-       ELSE IF (cn == "sd_scat") THEN
+       ELSE IF (ci == 35) THEN
           call cluc_crit_sd_scat(x,p,v)
-       ELSE IF (cn == "s_dbw") THEN
+       ELSE IF (ci == 32) THEN
           call cluc_crit_s_dbw(x,p,v)
-       ELSE IF (cn == "silhouette") THEN
+       ELSE IF (ci == 36) THEN
           call cluc_crit_silhouette(x,p,v)
-       ELSE IF (cn == "tau") THEN
+       ELSE IF (ci == 37) THEN
           call cluc_crit_tau(x,p,v)
-       ELSE IF (cn == "trace_w") THEN
+       ELSE IF (ci == 38) THEN
           call cluc_crit_trace_w(x,p,v)
-       ELSE IF (cn == "trace_wib") THEN
+       ELSE IF (ci == 39) THEN
           call cluc_crit_trace_wib(x,p,v)
-       ELSE IF (cn == "wemmert_gancarski") THEN
+       ELSE IF (ci == 40) THEN
           call cluc_crit_wemmert_gancarski(x,p,v)
-       ELSE IF (cn == "xie_beni") THEN
+       ELSE IF (ci == 41) THEN
           call cluc_crit_xie_beni(x,p,v)
        ELSE
           e = 1
@@ -136,99 +150,108 @@ END SUBROUTINE cluc_calc_int_criterion
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_int_set_flags(cl,cn)" --
+! "SUBROUTINE cluc_int_set_flags(ci)" --
 ! 
-!       cl	in		criterion length
-!       cn	in		criterion name
+!       ci	in		criterion index
 ! 
 ! Set the flags to determine which quantities will have to be calculated.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_int_set_flags(cl,cn)
+SUBROUTINE cluc_int_set_flags(ci)
     use critUtils 
 ! use logFile
     IMPLICIT NONE
-    integer, intent(in) :: cl
-    character (len=32), intent(in) :: cn
+    integer, intent(in) :: ci
     integer :: i, c1, c2
      
-    IF (cn == "ball_hall") THEN
+    IF (ci == 0) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
-    ELSE IF (cn == "banfeld_raftery") THEN
+    ELSE IF (ci == 1) THEN
        sFlg = ibset(sFlg, fWgKMat)
-    ELSE IF (cn == "c_index") THEN
+    ELSE IF (ci == 2) THEN
        sFlg = ibset(sFlg, fPairsDist)
-    ELSE IF (cn == "calinski_harabasz") THEN
+    ELSE IF (ci == 3) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
-    ELSE IF (cn == "davies_bouldin") THEN
+    ELSE IF (ci == 4) THEN
        sFlg = ibset(sFlg, fWgPtsBarySum)
        sFlg = ibset(sFlg, fBgPairsBary)
-    ELSE IF (cn == "dunn") THEN
+    ELSE IF (ci == 6) THEN
        sFlg = ibset(sFlg, fBgPairsMin)
        sFlg = ibset(sFlg, fWgPairsMax)
-    ELSE IF (cn == "gamma") THEN
+    ELSE IF (ci == 7) THEN
        sFlg = ibset(sFlg, fPairsDist)
-    ELSE IF (cn == "g_plus") THEN
+    ELSE IF (ci == 8) THEN
        sFlg = ibset(sFlg, fPairsDist)
-    ELSE IF ( index(cn,"gdi") == 1 ) THEN
-       IF (cl == 5) THEN
-          c1 = iachar(cn(4:4)) - 48
-          c2 = iachar(cn(5:5)) - 48
-       ELSE
-          c1 = 1
-          c2 = 1
-       END IF
-
-       !! First integer is the between-group distance (1-5)
-       SELECT CASE (c1)
-          CASE(1)
+    ELSE IF ( ci == 9 ) THEN
              sFlg = ibset(sFlg, fBgPairsMin)
-          CASE(2)
-             sFlg = ibset(sFlg, fBgPairsMax)
-          CASE(3)
-             sFlg = ibset(sFlg, fBgPairsSum)
-          CASE(4)
-             sFlg = ibset(sFlg, fBgPairsBary)
-          CASE(5)
-             sFlg = ibset(sFlg, fWgPtsBarySum)
-       END SELECT
-       
-       !! Second integer is the within-group distance (1-3)
-       SELECT CASE (c2)
-          CASE(1)
              sFlg = ibset(sFlg, fWgPairsMax)
-          CASE(2)
+    ELSE IF (ci == 10) THEN
+             sFlg = ibset(sFlg, fBgPairsMin)
              sFlg = ibset(sFlg, fWgPairsSum)
-          CASE(3)
+    ELSE IF (ci == 11) THEN
+             sFlg = ibset(sFlg, fBgPairsMin)
              sFlg = ibset(sFlg, fWgPtsBarySum)
-       END SELECT
-       
-    ELSE IF (cn == "log_ss_ratio") THEN
+    ELSE IF (ci == 12) THEN
+             sFlg = ibset(sFlg, fBgPairsMax)
+             sFlg = ibset(sFlg, fWgPairsMax)
+    ELSE IF (ci == 13) THEN
+             sFlg = ibset(sFlg, fBgPairsMax)
+             sFlg = ibset(sFlg, fWgPairsSum)
+    ELSE IF (ci == 14) THEN
+             sFlg = ibset(sFlg, fBgPairsMax)
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+    ELSE IF (ci == 15) THEN
+             sFlg = ibset(sFlg, fBgPairsSum)
+             sFlg = ibset(sFlg, fWgPairsMax)
+    ELSE IF (ci == 16) THEN
+             sFlg = ibset(sFlg, fBgPairsSum)
+             sFlg = ibset(sFlg, fWgPairsSum)
+    ELSE IF (ci == 17) THEN
+             sFlg = ibset(sFlg, fBgPairsSum)
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+    ELSE IF (ci == 18) THEN
+             sFlg = ibset(sFlg, fBgPairsBary)
+             sFlg = ibset(sFlg, fWgPairsMax)
+    ELSE IF (ci == 19) THEN
+             sFlg = ibset(sFlg, fBgPairsBary)
+             sFlg = ibset(sFlg, fWgPairsSum)
+    ELSE IF (ci == 20) THEN
+             sFlg = ibset(sFlg, fBgPairsBary)
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+    ELSE IF (ci == 21) THEN
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+             sFlg = ibset(sFlg, fWgPairsMax)
+    ELSE IF (ci == 22) THEN
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+             sFlg = ibset(sFlg, fWgPairsSum)
+    ELSE IF (ci == 23) THEN
+             sFlg = ibset(sFlg, fWgPtsBarySum)
+    ELSE IF (ci == 26) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
-    ELSE IF (cn == "mcclain_rao") THEN
+    ELSE IF (ci == 27) THEN
        sFlg = ibset(sFlg, fWgPairsSum)
        sFlg = ibset(sFlg, fBgPairsSum)
-   ELSE IF (cn == "pbm") THEN
+   ELSE IF (ci == 28) THEN
        sFlg = ibset(sFlg, fBgPairsBary)
        sFlg = ibset(sFlg, fWgPtsBarySum)
-    ELSE IF (cn == "point_biserial") THEN
+    ELSE IF (ci == 29) THEN
        sFlg = ibset(sFlg, fWgPairsSum)
        sFlg = ibset(sFlg, fBgPairsSum)
-    ELSE IF (cn == "ray_turi") THEN
+    ELSE IF (ci == 31) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
        sFlg = ibset(sFlg, fBgPairsBary)
-    ELSE IF (cn == "scott_symons") THEN
+    ELSE IF (ci == 33) THEN
        sFlg = ibset(sFlg, fWgKMat)
-    ELSE IF (cn == "sd_dis") THEN
+    ELSE IF (ci == 34) THEN
         sFlg = ibset(sFlg, fBgPairsBary)
-    ELSE IF (cn == "silhouette") THEN
+    ELSE IF (ci == 36) THEN
         sFlg = ibset(sFlg, fPtClDist)
-    ELSE IF (cn == "tau") THEN
+    ELSE IF (ci == 37) THEN
        sFlg = ibset(sFlg, fPairsDist)
-    ELSE IF (cn == "trace_w") THEN
+    ELSE IF (ci == 38) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
-    ELSE IF (cn == "xie_beni") THEN
+    ELSE IF (ci == 41) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
        sFlg = ibset(sFlg, fBgPairsMin)
     END IF
@@ -281,12 +304,11 @@ END SUBROUTINE cluc_int_precalc
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_calc_ext_criterion(p1,p2,cl,cn,e,v)" --
+! "SUBROUTINE cluc_calc_ext_criterion(p1,p2,ci,e,v)" --
 ! 
 !       p1	in		first partition vector (of length nr)
 !       p2	in		second partition vector (of length nr)
-!       cl	in		criterion length
-!       cn	in		criterion name
+!       cl	in		criterion index
 !       e	out		error code (0 for no error)
 !       v	out		criterion value
 ! 
@@ -294,14 +316,13 @@ END SUBROUTINE cluc_int_precalc
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_calc_ext_criterion(p1,p2,cl,cn,e,v)
+SUBROUTINE cluc_calc_ext_criterion(p1,p2,ci,e,v)
     use indices
 !     use timer
 
     IMPLICIT NONE
     integer, intent(in), dimension(sNr) :: p1, p2
-    integer, intent(in) :: cl
-    character (len=32), intent(in) :: cn
+    integer, intent(in) :: ci
     integer, intent(out) :: e
     double precision, intent(out) :: v
     integer :: i, rep
@@ -316,33 +337,33 @@ SUBROUTINE cluc_calc_ext_criterion(p1,p2,cl,cn,e,v)
 !     END IF
  
     DO i=1,rep
-       IF (cn == "czekanowski_dice") THEN
+       IF (ci == 0) THEN
           call cluc_crit_czekanowski_dice(p1,p2,v)
-       ELSE IF (cn == "folkes_mallows") THEN
+       ELSE IF (ci == 1) THEN
           call cluc_crit_folkes_mallows(p1,p2,v)
-       ELSE IF (cn == "hubert") THEN
+       ELSE IF (ci == 2) THEN
           call cluc_crit_hubert(p1,p2,v)
-       ELSE IF (cn == "jaccard") THEN
+       ELSE IF (ci == 3) THEN
           call cluc_crit_jaccard(p1,p2,v)
-       ELSE IF (cn == "kulczynski") THEN
+       ELSE IF (ci == 4) THEN
           call cluc_crit_kulczynski(p1,p2,v) 
-       ELSE IF (cn == "mcnemar") THEN
+       ELSE IF (ci == 5) THEN
           call cluc_crit_mcnemar(p1,p2,v)
-       ELSE IF (cn == "phi") THEN
+       ELSE IF (ci == 6) THEN
           call cluc_crit_phi(p1,p2,v)
-       ELSE IF (cn == "precision") THEN
+       ELSE IF (ci == 7) THEN
           call cluc_crit_precision(p1,p2,v) 
-       ELSE IF (cn == "rand") THEN
+       ELSE IF (ci == 8) THEN
           call cluc_crit_rand(p1,p2,v)
-       ELSE IF (cn == "recall") THEN
+       ELSE IF (ci == 9) THEN
           call cluc_crit_recall(p1,p2,v) 
-       ELSE IF (cn == "rogers_tanimoto") THEN
+       ELSE IF (ci == 10) THEN
           call cluc_crit_rogers_tanimoto(p1,p2,v)
-       ELSE IF (cn == "russel_rao") THEN
+       ELSE IF (ci == 11) THEN
           call cluc_crit_russel_rao(p1,p2,v)
-       ELSE IF (cn == "sokal_sneath1") THEN
+       ELSE IF (ci == 12) THEN
           call cluc_crit_sokal_sneath1(p1,p2,v)
-       ELSE IF (cn == "sokal_sneath2") THEN
+       ELSE IF (ci == 13) THEN
           call cluc_crit_sokal_sneath2(p1,p2,v)
        ELSE
           e = 1

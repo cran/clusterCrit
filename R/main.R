@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "main.R"
 #                        Created: 2010-04-26 08:23:20
-#              Last modification: 2012-11-07 17:45:11
+#              Last modification: 2013-06-12 16:18:17
 # Author: Bernard Desgraupes
 # e-mail: <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
@@ -155,6 +155,9 @@ buildCriteriaList <- function(crit, isInternal) {
 	} else {
 		criteria <- vector(mode="character")
 		for (i in 1:length(crit)) {
+			if (crit[i] == "gdi") {
+				crit[i] <- "gdi11"
+			}
 			idx <- charmatch(crit[i], names)
 			if (is.na(idx)) {
 				stop("unknown criterion ",crit[i])

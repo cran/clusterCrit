@@ -29,17 +29,17 @@ ALL_CRIT_TESTNAME=runAllTests.R
 
 tests:
 	@echo "Running all tests"
-	R --vanilla --slave < ${ALL_CRIT_TESTNAME}
+	@R --vanilla --slave < ${ALL_CRIT_TESTNAME}
 
 
 test-%:
 	@echo "Running test for '$*'"
-	echo "source(\"${TEST_DIR}/${SINGLE_TEST_NAME}\")" | R --vanilla --args $*
+	@echo "source(\"${TEST_DIR}/${SINGLE_TEST_NAME}\")" | R --vanilla --slave --args $*
 
 
 crit-%:
 	@echo "Running test for criterion '$*'"
-	echo "source(\"${TEST_DIR}/${SINGLE_CRIT_NAME}\")" | R --vanilla --args $*
+	@echo "source(\"${TEST_DIR}/${SINGLE_CRIT_NAME}\")" | R --vanilla --slave --args $*
 
 
 all: install tests

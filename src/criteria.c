@@ -2,7 +2,7 @@
  * ===========================================================================
  * File: "criteria.c"
  *                        Created: 2010-04-26 08:31:04
- *              Last modification: 2013-04-24 16:22:43
+ *              Last modification: 2013-06-12 15:55:02
  * Author: Bernard Desgraupes
  * e-mail: <bernard.desgraupes@u-paris10.fr>
  * This is part of the R package 'clusterCrit'.
@@ -21,18 +21,60 @@
 
 #define CRIT_MAX_LENGTH 32
 
+	static const char * sIntCritNames[] = {
+		"ball_hall",        	"banfeld_raftery",	"c_index",        	"calinski_harabasz",
+		"davies_bouldin",   	"det_ratio",      	"dunn",           	"g_plus",
+		"gamma",            	"gdi11",          	"gdi12",          	"gdi13",
+		"gdi21",            	"gdi22",          	"gdi23",          	"gdi31",
+		"gdi32",            	"gdi33",          	"gdi41",          	"gdi42",
+		"gdi43",            	"gdi51",          	"gdi52",          	"gdi53",
+		"ksq_detw",         	"log_det_ratio",  	"log_ss_ratio",   	"mcclain_rao",
+		"pbm",              	"point_biserial", 	"ratkowsky_lance",	"ray_turi",
+		"s_dbw",            	"scott_symons",   	"sd_dis",         	"sd_scat",
+		"silhouette",       	"tau",            	"trace_w",        	"trace_wib",
+		"wemmert_gancarski",	"xie_beni",       	(char *) NULL      
+	};
+
+	enum {
+		INTCRIT_BALL_HALL,        	INTCRIT_BANFELD_RAFTERY,	INTCRIT_C_INDEX,        	INTCRIT_CALINSKI_HARABASZ,
+		INTCRIT_DAVIES_BOULDIN,   	INTCRIT_DET_RATIO,      	INTCRIT_DUNN,           	INTCRIT_G_PLUS,           
+		INTCRIT_GAMMA,            	INTCRIT_GDI11,          	INTCRIT_GDI12,          	INTCRIT_GDI13,            
+		INTCRIT_GDI21,            	INTCRIT_GDI22,          	INTCRIT_GDI23,          	INTCRIT_GDI31,            
+		INTCRIT_GDI32,            	INTCRIT_GDI33,          	INTCRIT_GDI41,          	INTCRIT_GDI42,            
+		INTCRIT_GDI43,            	INTCRIT_GDI51,          	INTCRIT_GDI52,          	INTCRIT_GDI53,            
+		INTCRIT_KSQ_DETW,         	INTCRIT_LOG_DET_RATIO,  	INTCRIT_LOG_SS_RATIO,   	INTCRIT_MCCLAIN_RAO,      
+		INTCRIT_PBM,              	INTCRIT_POINT_BISERIAL, 	INTCRIT_RATKOWSKY_LANCE,	INTCRIT_RAY_TURI,         
+		INTCRIT_S_DBW,            	INTCRIT_SCOTT_SYMONS,   	INTCRIT_SD_DIS,         	INTCRIT_SD_SCAT,          
+		INTCRIT_SILHOUETTE,       	INTCRIT_TAU,            	INTCRIT_TRACE_W,        	INTCRIT_TRACE_WIB,        
+		INTCRIT_WEMMERT_GANCARSKI,	INTCRIT_XIE_BENI        
+	};
+
+
+	static const char * sExtCritNames[] = {
+		"czekanowski_dice",	"folkes_mallows",	"hubert",         	"jaccard",
+		"kulczynski",      	"mcnemar",       	"phi",            	"precision",
+		"rand",            	"recall",        	"rogers_tanimoto",	"russel_rao",
+		"sokal_sneath1",   	"sokal_sneath2", 	(char *) NULL      
+	};
+
+	enum {
+		EXTCRIT_CZEKANOWSKI_DICE,	EXTCRIT_FOLKES_MALLOWS,	EXTCRIT_HUBERT,         	EXTCRIT_JACCARD,   
+		EXTCRIT_KULCZYNSKI,      	EXTCRIT_MCNEMAR,       	EXTCRIT_PHI,            	EXTCRIT_PRECISION, 
+		EXTCRIT_RAND,            	EXTCRIT_RECALL,        	EXTCRIT_ROGERS_TANIMOTO,	EXTCRIT_RUSSEL_RAO,
+		EXTCRIT_SOKAL_SNEATH1,   	EXTCRIT_SOKAL_SNEATH2  
+	};
+
+
+
 SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 {
-	int				i, critLen, err = 0;
+	int				i, idx, err = 0;
 	int				nbRows, nbCols, nbClust, nbCrit;
 	int				*part, *dims;
 	double			critVal;
 	double			*traj;
 	SEXP			result;
 	const char * 	str;
-	char			critName[CRIT_MAX_LENGTH+1];
-	
-	critName[CRIT_MAX_LENGTH] = 0;
 	
 	PROTECT(inTraj);
 	PROTECT(inPart);
@@ -76,10 +118,12 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 	for (i = 0; i < nbCrit; i++) {
 		if (STRING_ELT(inCrit, i) != NA_STRING) {
 			str = CHAR(STRING_ELT(inCrit, i));
-			critLen = strlen(str);			
-			memset(critName,' ',CRIT_MAX_LENGTH);
-			memcpy(critName,str,critLen);
-			F77_CALL(cluc_int_set_flags)(&critLen, critName);			
+			idx = cluc_getIndexFromName(str, sIntCritNames);
+			if (idx == -1) {
+				UNPROTECT(4);
+				cluc_errorMsg(1);
+			} 
+			F77_CALL(cluc_int_set_flags)(&idx);			
 		}		
 	}
 	
@@ -92,10 +136,12 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 			critVal = R_NaReal;
 			if (STRING_ELT(inCrit, i) != NA_STRING) {
 				str = CHAR(STRING_ELT(inCrit, i));
-				critLen = strlen(str);			
-				memset(critName,' ',CRIT_MAX_LENGTH);
-				memcpy(critName,str,critLen);
-				F77_CALL(cluc_calc_int_criterion)(traj, part, &critLen, critName, &err, &critVal);
+				idx = cluc_getIndexFromName(str, sIntCritNames);
+				if (idx == -1) {
+					err = 1;
+					break;
+				} 
+				F77_CALL(cluc_calc_int_criterion)(traj, part, &idx, &err, &critVal);
 				if (err != 0) {
 					break;
 				} 
@@ -117,15 +163,12 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 
 SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 {
-	int				i, critLen, err = 0;
+	int				i, idx, err = 0;
 	int				nbElem, nbClust1, nbClust2, nbCrit;
 	int				*part1, *part2;
 	double			critVal;
 	SEXP			result;
 	const char * 	str;
-	char			critName[CRIT_MAX_LENGTH+1];
-	
-	critName[CRIT_MAX_LENGTH] = 0;
 	
 	PROTECT(inPart1);
 	PROTECT(inPart2);
@@ -170,10 +213,12 @@ SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 		critVal = R_NaReal;
 		if (STRING_ELT(inCrit, i) != NA_STRING) {
 			str = CHAR(STRING_ELT(inCrit, i));
-			critLen = strlen(str);			
-			memset(critName,' ',CRIT_MAX_LENGTH);
-			memcpy(critName,str,critLen);
-			F77_CALL(cluc_calc_ext_criterion)(part1, part2, &critLen, critName, &err, &critVal);
+			idx = cluc_getIndexFromName(str, sExtCritNames);
+			if (idx == -1) {
+				err = 1;
+				break;
+			} 
+			F77_CALL(cluc_calc_ext_criterion)(part1, part2, &idx, &err, &critVal);
 			if (err != 0) {
 				break;
 			} 
@@ -282,3 +327,26 @@ void cluc_errorMsg(int inErr) {
 	sprintf(msg,"cluscrit: error (%d) -> %s\n", inErr, errStr);
 	Rf_error(msg);
 }
+
+
+int
+cluc_getIndexFromName(const char * inName, const char *tablePtr[])
+{
+	int		idx = -1, i = 0;
+	char *	p = (char*)tablePtr[0];
+
+	while (p != NULL) {
+		if (strcmp(inName, p) == 0) {
+			idx = i;
+			break;
+		} 
+		p = (char*)tablePtr[++i];
+	}
+	
+	return idx;
+}
+
+
+
+
+
