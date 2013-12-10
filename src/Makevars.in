@@ -10,7 +10,7 @@
 # Substitutable variables
 # =======================
 
-PKG_LIBS =  ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}
+PKG_LIBS = ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}
 
 OBJECTS = ${CLUS_C_OBJ} ${CLUS_F_OBJ}
 
@@ -55,14 +55,14 @@ clean:
 		rm -rf ../autom4te.cache/*; \
 		rmdir ../autom4te.cache; \
 	fi
-	cd ../inst/doc/; \
+	cd ../vignettes/; \
 	rm -f *.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz}
 	# Hidden files
 	rm -f .tex .DS_Store
 
 
 vignette:
-	cd ../inst/doc; \
+	cd ../vignettes; \
 	rm -f ${CLUS_VIGNETTE_NAME}.tex; \
 	echo "library(\"utils\"); Sweave(\"${CLUS_VIGNETTE_NAME}.Rnw\")" | R --no-save --no-restore ; \
 	pdflatex ${CLUS_VIGNETTE_NAME}.tex; \

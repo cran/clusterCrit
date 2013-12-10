@@ -51,7 +51,7 @@ clean:
 		rm -rf ../autom4te.cache/*; \
 		rmdir ../autom4te.cache; \
 	fi
-	cd ../inst/doc/; \
+	cd ../vignettes/; \
 	rm -f *.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz}
 
 

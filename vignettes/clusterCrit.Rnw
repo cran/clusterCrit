@@ -1,0 +1,2126 @@
+% ===========================================================================
+% File: clusterCrit.Rnw
+%           Created: 2010-12-17 08:48:52
+% Last modification: 2012-11-13 17:18:39
+% Author: Bernard Desgraupes
+% e-mmail: bdesgraupes@users.sourceforge.net
+% ===========================================================================
+% 
+% % Vignette meta-information
+% % -------------------------
+%\VignetteIndexEntry{An R Package for Computing Clustering Quality Indices}
+%\VignetteDepends{clusterCrit}
+%\VignetteKeywords{clustering, quality index, internal index, external index, concordance, R, S}
+%\VignettePackage{clusterCrit}
+
+
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{ifthen}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsopn}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{varioref}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+
+\usepackage{times}
+
+
+\newcommand{\transp}[1]{{}^t\!#1}
+\newcommand{\ttransp}[1]{\transp{#1}\,#1}
+
+\newcommand{\clust}[2][k]{#2^{\{#1\}}}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Corr}{\mathrm{Corr}}
+\newcommand{\Tr}{\mathrm{Tr}}
+\newcommand{\sgn}{\mathrm{sgn}}
+
+\pagestyle{myheadings}
+\markright{Package clusterCrit for R}
+
+\begin{document}
+
+
+\title{Clustering Indices}
+\author{Bernard Desgraupes\\
+University Paris Ouest\\
+Lab Modal'X}
+\date{\small April 2013}
+
+\maketitle
+
+\hrule
+\vspace{5mm}
+\tableofcontents
+\vspace{5mm}
+\hrule
+\newpage
+
+
+\section{Internal clustering criteria}
+\label{sec-clust-int-idx}
+
+
+\subsection{Algebraic background and notations}
+\label{subsec-int-crit-notation}
+
+Let us denote by $A$ the data matrix: each row is an observation
+$O_{i}$ corresponding to an individual and each column represents a
+variable observed for all the individuals.
+
+There are $N$ observations and $p$ variables. The size of matrix $A$ is
+$N\times p$.
+
+The data are assumed to be partitioned in $K$ groups (or
+\emph{clusters}). Let us denote by $P$ the vector representing a
+partition of the data: it is an integer vector with values between 1
+and $K$. The size of $P$ is equal to the number $N$ of observations.
+For each index $i$ ($1\leq i\leq N$), the coordinate $P_{i}$ is equal
+to the number $k$ ($1\leq k\leq K$) of the cluster the observation $O_{i}$
+belongs to.
+
+The cluster $C_{k}$ can be represented by a submatrix $\clust{A}$ of 
+matrix $A$ made of the rows of $A$ whose index $i$ is such that
+$P_{i}=k$. If $n_{k}$ denotes the cardinal of $C_{k}$, the matrix 
+$\clust{A}$ has size $n_{k}\times p$ and one has the relation 
+$\sum_{k}n_{k}=N$. Let us denote by $I_{k}$ the set of the indices 
+of the
+observations belonging to the cluster $C_{k}$:
+$$
+I_{k}=\{i\,|\,O_{i}\in C_{k}\}=\{i\,|\,P_{i}=k\}.
+$$
+The matrix $\clust{A}$ can also be denoted formally as
+$A_{\{I_{k}\}}$.
+
+
+Let us denote by $\clust{\mu}$ the barycenter of the observations in
+the cluster $C_{k}$ and by $\mu$ the barycenter of all the observations.
+$\clust{\mu}$ and $\mu$ are row-vectors with length $p$: they are the
+means of the rows of the matrices $\clust{A}$ and $A$ respectively:
+\begin{eqnarray}
+    \clust{\mu} & = & \frac{1}{n_{k}}\sum_{i\in I_{k}}x_{i} \\
+    \mu & = & \frac{1}{N}\sum_{i=1}^N x_{i}
+\end{eqnarray}
+where $x_{i}$ designates the row of index $i$ in $A$.
+
+
+
+\subsubsection{Total dispersion}
+\label{subsubsec-dispersion-totale}
+
+
+Each column vector $V_{j}$ ($1\leq j\leq p$) of the matrix $A$
+can be interpreted as a sample of size $N$ of the $j$-th
+observed variable. Let us center each of these vectors 
+with respect to its mean by setting $v_{j}=V_{j} - \mu_{j}$.
+If $X$ is the matrix formed by the centered vectors $v_{j}$, the
+scatter matrix $T$ is the matrix defined by
+$$
+T=\ttransp{X}.
+$$
+The general term of $T$ is:
+\begin{equation}
+t_{ij}=\sum_{l=1}^N (a_{li}-\mu_{i})(a_{lj}-\mu_{j})
+\end{equation}
+The matrix $T$ is equal to $N$ times the variance-covariance matrix of
+the family of column vectors $(V_{1},\dots,V_{p})$. The general term
+of $T$ can thus also be written as 
+\begin{equation}
+    t_{ij}=N\times\Cov(V_{i},V_{j}).
+    \label{eq-tij-cov}
+\end{equation}
+In particular, the diagonal terms are $N$ times the variances of the
+vectors $V_{i}$: 
+\begin{equation}
+    t_{ii}=N\times\Var(V_{i}).
+    \label{eq-tii-var}
+\end{equation}
+
+One can also write:
+\begin{equation}
+t_{ij}=\transp{(V_{i}-\mu_{i})}(V_{j}-\mu_{j})
+\end{equation}
+where, by a slight abuse of notation, $\mu_{i}$ and $\mu_{j}$ 
+are here identified with the vectors 
+$\mu_{i}\mathbf{1}$ and $\mu_{j}\mathbf{1}$ respectively.
+
+The scatter matrix is a square symmetric matrix of size
+$p\times p$. As it is of the form $\ttransp{X}$, the quadratic form 
+it represents is positive semi-definite. Indeed, 
+if one takes any vector $v$ in $\R^p$:
+\begin{equation}
+\transp{v}Tv=\transp{v}\ttransp{X}v=\ttransp{(Xv)}=||Xv||^2\geq 0
+\end{equation}
+In particular, the eigenvalues and the determinant of the scatter 
+matrix are also
+greater than or equal to 0. If $N>p$ and if the matrix $X$ has 
+maximal rank
+$p$, the form is in fact positive definite.
+
+The total scattering TSS (\emph{total sum of squares}) is the trace of
+the matrix $T$:
+\begin{equation}
+TSS=\Tr(T)=N\sum_{j=1}^p\Var(V_{j})
+\end{equation}
+
+
+\emph{Geometric interpretation}: let us denote by $M_{1},\dots,M_{N}$
+the points of the space $\R^p$ representing all the observations:
+the coordinates of $M_{i}$ are the coefficients of the $i$-th row of
+the data matrix $A$. Similarly, let us denote by $G$ the barycenter of these
+points: its coordinates are the coefficients of the vector $\mu$. One can
+easily prove the following relations:
+\begin{eqnarray}
+    \Tr(T) & = & \sum_{i=1}^N ||M_{i}-G||^2 \\
+     & = & \frac{1}{N}\sum_{i<j} ||M_{i}-M_{j}||^2
+\end{eqnarray}
+% \begin{eqnarray}
+%     \Tr(T) & = & \sum_{i=1}^N GM_{i}^2 \\
+%      & = & \frac{1}{N}\sum_{i<j} M_{i}M_{j}^2
+% \end{eqnarray}
+It means that the trace of $T$, in other words the total scattering
+TSS, is equal to the scattering (sum of the squared distances)
+of the points around the barycenter. The second equality shows that
+this quantity is also the sum of the distances between all the pairs
+of points, divided by $N$.
+
+
+\subsubsection{Within-group scatter}
+\label{subsubsec-dispersion-intra}
+
+% 1. within-cluster scatter measure defined as:
+% 
+% W = sum(forall k in 1:cluster.num) W(k)
+% 
+% where W(k) = sum(forall x) (x - m(k))*(x - m(k))'
+% 
+% x     - object belongs to cluster k,
+% m(k)     - center of cluster k.
+
+There are similar definitions for the different clusters $C_{k}$:
+each column vector $\clust{V_{j}}$ of the matrix $\clust{A}$
+represents a sample of size $n_{k}$ of the $j$-th observed
+variable.
+
+For each cluster $C_{k}$, one defines the within-group scatter matrix
+(abbreviated as
+\emph{WG}). If $\clust{\mu}$ 
+designates the barycenter of the observations in cluster $k$
+and $\clust{X}$ is the matrix formed by the centered vectors  
+$\clust{v}_{j}=\clust{V}_{j} - \clust{\mu}_{j}$, 
+the within-group scatter matrix is defined by the following relation:
+\begin{equation}
+\clust{WG}=\ttransp{\clust{X}}
+\end{equation}
+and its general term is defined as:
+\begin{equation}
+\clust{w_{ij}}=\transp{\big(\clust{V_{i}}-\clust{\mu}_{i}\big)}\big(\clust{V_{j}}-\clust{\mu}_{j}\big)
+\end{equation}
+
+In terms of variance and covariance, by analogy with the relations 
+\eqref{eq-tij-cov} and \eqref{eq-tii-var}, the coefficients of the matrix
+$\clust{WG}$ can also be written as:
+\begin{equation}
+\begin{cases}
+    \clust{w_{ij}} & =  
+    n_{k}\times\Cov\big(\clust{V_{i}},\clust{V_{j}}\big) \\[3mm]
+    \clust{w_{ii}} & =  n_{k}\times\Var\big(\clust{V_{i}}\big)
+\end{cases}
+\end{equation}
+
+The matrices $\clust{WG}$ are square symmetric matrices of size
+$p\times p$. Let us denote by $WG$ their sum for all the clusters:
+\begin{equation}
+WG=\sum_{k=0}^K \clust{WG}
+\label{eq-WG}
+\end{equation}
+
+As was the case with the matrix $T$ seen in
+section~\ref{subsubsec-dispersion-totale}, the matrices $\clust{WG}$
+represent a positive semi-definite quadratic form $Q_{k}$ and, in
+particular, their eigenvalues and their determinant are greater than
+or equal to 0.
+
+The \emph{within-cluster dispersion}, noted $\clust{WGSS}$ or $WGSS_{k}$, is the 
+trace of the scatter matrix $\clust{WG}$:
+\begin{equation}
+\clust{WGSS}=\Tr(\clust{WG})=\sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||^2
+\label{eq-dispersion-intra}
+\end{equation}
+
+The within-cluster dispersion is the sum of the squared distances
+between the observations $\clust{M}_{i}$ and the barycenter
+$\clust{G}$ of the cluster.
+
+Finally the \emph{pooled within-cluster sum of squares} WGSS is the sum of the
+within-cluster dispersions for all the clusters:
+\begin{equation}
+WGSS=\sum_{k=0}^K \clust{WGSS}
+\label{eq-WGSS}
+\end{equation}
+
+The abovementioned geometric interpretation remains true at the 
+level of each group: in each cluster $C_{k}$, the  sum of the 
+squared distances from the points of the cluster to their barycenter is
+also the sum of the squared distances between all the pairs of points 
+in the cluster,
+divided par $n_{k}$. In other words:
+\begin{eqnarray}
+    \clust{WGSS} & = & \sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||^2 \\
+     & = & \frac{1}{n_{k}}\sum_{i<j\in I_{k}} ||\clust{M}_{i}-\clust{M}_{j}||^2
+\end{eqnarray}
+Inverting the formula, one gets:
+\begin{eqnarray}
+    \sum_{i\ne j} ||\clust{M}_{i}-\clust{M}_{j}||^2 & = & 2\sum_{i<j} 
+    ||\clust{M}_{i}-\clust{M}_{j}||^2 \nonumber\\
+     & = & 2n_{k}\,\sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||^2 \nonumber\\
+     & = & 2n_{k}\,\clust{WGSS}
+\end{eqnarray}
+
+
+
+\subsubsection{Between-group scatter}
+\label{subsubsec-dispersion-inter}
+
+% 2. between-cluster scatter measure defined as:
+% 
+% B = sum(forall k in 1:cluster.num) |C(k)|*( m(k) - m )*( m(k) - m )'
+% 
+% |C(k)|     - size of cluster k,
+% m(k)     - center of cluster k,
+% m     - center of all data objects.
+
+The between-group dispersion measures the dispersion of the clusters
+between each other. Precisely it is defined as the dispersion of the
+barycenters $\clust{G}$ of each cluster with respect to the barycenter
+$G$ of the whole set of data.
+
+Let us denote by $B$ the matrix formed in rows by the vectors 
+$\clust{\mu}-\mu$, each one being reproduced $n_{k}$ times ($1\leq k\leq K$). The 
+between-group scatter matrix is the matrix
+\begin{equation}
+    BG=\ttransp{B}.
+    \label{eq-BG}
+\end{equation}
+The general term of this matrix is:
+\begin{equation}
+b_{ij}=\sum_{k=1}^K n_{k}(\clust{\mu}_{i}-\mu_{i})(\clust{\mu}_{j}-\mu_{j})
+\end{equation}
+
+The between-group dispersion BGSS is the trace of this matrix:
+\begin{eqnarray}
+    BGSS=\Tr(BG) & = & \sum_{k=1}^K n_{k}\,\transp{(\clust{\mu}-\mu)}(\clust{\mu}-\mu) \nonumber\\
+    & = & \sum_{k=1}^K n_{k}\,||\clust{\mu}-\mu||^2 \nonumber\\
+    & = & \sum_{k=1}^K n_{k}\sum_{j=0}^p (\clust{\mu}_{j}-\mu_{j})^2 
+\end{eqnarray}
+% % % \begin{equation}
+% % % BGSS=\Tr(BG)=\sum_{k=1}^K n_{k}\transp{(\clust{\mu}-\mu)}(\clust{\mu}-\mu)
+% % % \end{equation}
+
+Geometrically, this sum is the weighted sum of the squared distances
+between the $\clust{G}$ and $G$, the weight being the number $n_{k}$ of
+elements in the cluster $C_{k}$:
+\begin{equation}
+BGSS=\sum_{k=1}^K n_{k}||\clust{G}-G||^2.
+\label{eq-BGSS}
+\end{equation}
+
+
+\subsubsection{Pairs of points}
+\label{subsubsec-paires-points}
+
+The observations (rows of the matrix $A$) can be represented by
+points in the space $\R^p$. Several quality indices defined in 
+section~\ref{subsec-int-crit-defs} consider the distances
+between these points. One is led to distinguish between pairs made of
+points belonging to the same cluster and pairs made of
+points belonging to different clusters.
+
+In the cluster $C_{k}$, there are $n_{k}(n_{k}-1)/2$ 
+pairs of distinct points (the order of the points does not matter). 
+Let us denote by $N_{W}$ the total number of such pairs:
+\begin{eqnarray}
+    N_{W} & = & \sum_{k=1}^K \frac{n_{k}(n_{k}-1)}{2} \\
+    & = & \frac{1}{2} \left( \sum_{k=1}^K n_{k}^2 - \sum_{k=1}^K 
+    n_{k} \right) \\
+    & = & \frac{1}{2} \left( \sum_{k=1}^K n_{k}^2 - N \right)
+\end{eqnarray}
+
+The total number of pairs of distinct points in the data set is 
+\begin{equation}
+N_{T}=\frac{N(N-1)}{2}
+\end{equation}
+Since $N=\sum_{k=1}^K n_{k}$, one can write :
+\begin{eqnarray}
+    N_{T}\ =\ \frac{N(N-1)}{2} & = & \frac{1}{2} \left( \sum_{k=1}^K n_{k}\right)^2 - \frac{1}{2}\sum_{k=1}^K n_{k} \nonumber\\
+    & = & \frac{1}{2} \left( \sum_{k=1}^K n_{k}^2 + 2\sum_{k<k'}n_{k}n_{k'} \right) - \frac{1}{2}\sum_{k=1}^K n_{k} \nonumber\\
+     & = & N_{W} + \sum_{k<k'}n_{k}n_{k'}
+\end{eqnarray}
+Let us denote by $N_{B}$ the number of pairs constituted of points 
+which do not belong to the same cluster, one has
+$N_{T}=N_{W}+N_{B}$ and consequently:
+\begin{equation}
+    N_{B}=\sum_{k<k'}n_{k}n_{k'}.
+\end{equation}
+
+In the remainder, $I_{B}$ will denote the set of the $N_{B}$ pairs of 
+between-cluster indices and $I_{W}$ the set of the $N_{W}$ pairs
+of within-cluster indices.
+
+
+
+\subsection{Internal indices}
+\label{subsec-int-crit-defs}
+
+The following sections provide the precise definitions of the various
+internal quality indices which have been proposed by various authors 
+in order to determine an optimal clustering.
+They are sorted in alphabetical order. These indices, also called
+quality indices, are all denoted by the same letter $\mathcal{C}$. Let us also
+denote by $d$ the distance function between two points (usually the 
+ordinary euclidean distance).
+
+Table~\ref{tbl-indices-bibref} summarizes the existing indices, their
+name in the package \emph{clusterCrit} for R, the bibliographic
+reference and the date of the article where they were originally
+defined.
+
+\begin{table}[tbp]
+    \centering
+	\renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|l|c|c|}
+        \hline
+        \rule[-8pt]{0pt}{20pt}\emph{Index} & \emph{Name in R} & \emph{Ref.} & \emph{Date} \\
+        \hline
+         Ball-Hall & Ball\_Hall & \cite{ball-hall-65} & 1965 \\
+         Banfeld-Raftery & Banfeld\_Raftery & \cite{banfield-raftery-93} & 1974 \\
+         C index & C\_index & \cite{hubert-schultz-76} & 1976 \\
+         Calinski-Harabasz & Calinski\_Harabasz & \cite{calinski-harabasz-74} & 1974 \\
+         Davies-Bouldin & Davies\_Bouldin & \cite{davies-bouldin-79} & 1979 \\
+         $|T|/|W|$ & Det\_Ratio & \cite{scott-symons-71} & 1971 \\
+         Dunn & Dunn & \cite{dunn-74} & 1974 \\
+         Dunn generalized & GDI$mn$ & \cite{bezdek-pal-98} & 1998 \\
+         Gamma & Gamma & \cite{baker-hubert-75} & 1975 \\
+         $G\;+$ & G\_plus & \cite{rohlf-74} & 1974 \\
+         $k^2|W|$ & Ksq\_DetW & \cite{marriot-75} & 1975 \\
+         $\log(|T|/|W|)$ & Log\_Det\_Ratio & \cite{scott-symons-71} & 1971 \\
+         $\log(BGSS/WGSS)$ & Log\_SS\_Ratio & \cite{hartigan-75} & 1975 \\
+         McClain-Rao & McClain\_Rao & \cite{mcclain-rao-01} & 2001 \\
+         PBM & PBM & \cite{pakhira-04} & 2004 \\
+         Point biserial & Point\_biserial & \cite{milligan-81} & 1981 \\
+         Ratkowsky-Lance & Ratkowsky\_Lance & \cite{ratkowsky-lance-78} & 1978 \\
+         Ray-Turi & Ray\_Turi & \cite{ray-turi-99} & 1999 \\
+         Scott-Symons & Scott\_Symons & \cite{scott-symons-71} & 1971 \\
+         SD & SD\_Scat & \cite{halkidi-01} & 2001 \\
+         SD & SD\_Dis & \cite{halkidi-01} & 2001 \\
+         S\_Dbw & S\_Dbw & \cite{halkidi-vazirgiannis-01} & 2001 \\
+         Silhouette & Silhouette & \cite{rousseeuw-87} & 1987 \\
+         $\Tr(W)$ & Trace\_W & \cite{edwards-cavalli-65} & 1965 \\
+         $\Tr(W^{-1}B)$ & Trace\_WiB & \cite{friedman-rubin-67} & 1967 \\
+         Wemmert-Gan\c{c}arski & Wemmert\_Gancarski & &  \\
+         Xie-Beni & Xie\_Beni & \cite{xie-beni-91} & 1991 \\
+        \hline
+    \end{tabular}
+    \caption{\label{tbl-indices-bibref}Index names in the package
+    \emph{clusterCrit} for R and bibliographic references.}
+\end{table}
+
+%  \cite{}
+
+\subsubsection{The Ball-Hall index}
+\label{subsubsec-int-Ball-Hall}
+
+The mean dispersion of a cluster is the mean of the squared distances
+of the points of the cluster with respect to their barycenter. The
+Ball-Hall index is the mean, through all the clusters, of their mean
+dispersion:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{1}{K}\sum_{k=1}^K \frac{1}{n_{k}}\sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||^2}
+    \label{eq-crit-ball-hall}
+\end{equation}
+
+In the particular case where all the clusters have the same size $N/K$,
+this sum reduces to $\frac{1}{N}WGSS$.
+
+
+\subsubsection{The Banfeld-Raftery index}
+\label{subsubsec-int-Banfeld-Raftery}
+
+This index is the weighted sum of the logarithms of the traces of the
+variance-covariance matrix of each cluster.
+
+The index can be written like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\sum_{k=1}^K 
+    n_{k}\log\left(\frac{\Tr(\clust{WG})}{n_{k}}\right)}
+    \label{eq-crit-banfeld-raftery}
+\end{equation}
+
+The quantity $\Tr(\clust{WG})/n_{k}$ can be interpreted, after
+equation~(\ref{eq-dispersion-intra}), as the mean of the squared
+distances between the points in cluster $C_{k}$ and their barycenter
+$\clust{G}$. If a cluster contains a single point, this trace is equal
+to 0 and the logarithm is undefined.
+
+
+\subsubsection{The C index}
+\label{subsubsec-int-C-index}
+
+Let us consider the distances between the pairs of points inside each
+cluster. The numbers $N_{W}$ and $N_{T}$ have been defined in
+section~\ref{subsubsec-paires-points}. One computes the following
+three quantities:
+\begin{itemize}
+\item  $S_{W}$ is the sum of the $N_{W}$ distances between all the pairs 
+of points inside each cluster ;
+
+\item $S_{min}$ is the sum of the $N_{W}$ smallest distances between
+all the pairs of points in the entire data set. There are $N_{T}$ such
+pairs (see section~\ref{subsubsec-paires-points}): one takes the sum
+of the $N_{W}$ smallest values ;
+
+\item $S_{max}$ is the sum of the $N_{W}$ largest distances between
+all the pairs of points in the entire data set. There are $N_{T}$ such
+pairs: one takes the sum of the $N_{W}$ largest values.
+
+\end{itemize}
+
+The C index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{S_{W}-S_{min}}{S_{max}-S_{min}}}
+    \label{eq-crit-C_index}
+\end{equation}
+
+If one considers the $N_{T}$ distances between pairs of points as a
+sequence of values sorted in increasing order, the $\mathcal{C}$ index
+uses the $N_{W}$ smallest values and the $N_{W}$ largest values in
+order to compute the sums $S_{min}$ and $S_{max}$: the sum $S$
+involves the $N_{W}$ distances in this sequence which correspond to
+pairs present in some cluster (that is to say pairs whose two points
+are in a same cluster). No more than $3N_{W}$ distances are
+effectively retained in the calculation of this index.
+
+
+
+\subsubsection{The Calinski-Harabasz index}
+\label{subsubsec-int-Calinski}
+
+Using the notations of equations \eqref{eq-WGSS} and \eqref{eq-BGSS},
+the Calinski-Harabasz index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{BGSS/(K-1)}{WGSS/(N-K)}=\frac{N-K}{K-1}\frac{BGSS}{WGSS}}
+    \label{eq-crit-calinski}
+\end{equation}
+
+
+
+\subsubsection{The Davies-Bouldin index}
+\label{subsubsec-int-Davies-Bouldin}
+
+
+Let us denote by $\delta_{k}$ the mean distance of the points 
+belonging to cluster $C_{k}$ to their barycenter $\clust{G}$:
+\begin{equation}
+\delta_{k}=\frac{1}{n_{k}}\sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||
+\end{equation}
+
+Let us also denote by 
+$$
+\Delta_{kk'}=d(\clust{G},\,\clust[k']{G})=||\clust[k']{G}-\clust{G}||
+$$ 
+the distance between the barycenters 
+$\clust{G}$ and $\clust[k']{G}$
+of clusters $C_{k}$ and $C_{k'}$.
+
+One computes, for each cluster $k$, the maximum $M_{k}$ of the 
+quotients
+$\dfrac{\delta_{k}+\delta_{k'}}{\Delta_{kk'}}$ for all indices 
+$k'\ne k$. The Davies-Bouldin index is the mean value, among 
+all the clusters, of the quantities $M_{k}$:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{1}{K}\sum_{k=1}^K M_{k}=\frac{1}{K}\sum_{k=1}^K \max_{k'\ne 
+    k}\Big(\frac{\delta_{k}+\delta_{k'}}{\Delta_{kk'}}\Big)}
+    \label{eq-crit-davies-bouldin}
+\end{equation}
+
+
+
+\subsubsection{The Det\_Ratio index}
+\label{subsubsec-int-Det-Ratio}
+
+The Det\_Ratio index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{\det(T)}{\det(WG)}}
+    \label{eq-crit-Det-Ratio}
+\end{equation}
+
+$T$ designates the total scatter matrix defined in
+section~\ref{subsubsec-dispersion-totale}. This is the sum of matrices
+$BG$ and $WG$ defined in equations~\eqref{eq-WG} and \eqref{eq-BG}.
+
+
+
+\subsubsection{The Dunn index}
+\label{subsubsec-int-Dunn}
+
+Let us denote by $d_{min}$ the minimal distance between points of different 
+clusters and $d_{max}$ the largest within-cluster distance.
+
+The distance between clusters $C_k$ and $C_{k'}$ is measured by the distance 
+between their closest points:
+\begin{equation}
+d_{kk'}=\min_{{i\in I_{k}}\atop{j\in I_{k'}}}||\clust{M}_{i}-\clust[k']{M}_{j}||
+\end{equation}
+and $d_{min}$ is the smallest of these distances $d_{kk'}$:
+\begin{equation}
+d_{min}=\min_{k\ne k'}d_{kk'}
+\end{equation}
+
+For each cluster $C_k$, let us denote by $D_{k}$ the largest distance 
+separating two distinct points in the cluster (sometimes called the 
+diameter of the cluster):
+\begin{equation}
+D_{k}=\max_{{i,j\in I_{k}}\atop{i\ne j}} ||\clust{M}_{i}-\clust{M}_{j}||.
+\end{equation}
+Then $d_{max}$ is the largest of these distances $D_{k}$:
+\begin{equation}
+d_{max}=\max_{1\leq k\leq K}D_{k}
+\end{equation}
+
+The Dunn index is defined as the quotient of $d_{min}$ and $d_{max}$:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{d_{min}}{d_{max}}}
+    \label{eq-crit-dunn}
+\end{equation}
+
+
+
+\subsubsection{The Baker-Hubert Gamma index}
+\label{subsubsec-int-Baker-Hubert}
+
+The Gamma index of Baker-Hubert is an adaptation, in the context
+of clustering, of the index $\Gamma$ of correlation between two
+vectors of data $A$ and $B$ with the same size.
+
+Generally, for two indices $i$ and $j$ such that $a_{i} <
+a_{j}$, one says that the two vectors are concordant if $b_{i} <
+b_{j}$, in other words, if the values classify in the same order
+in both vectors. One calculates the number $s^{+}$ of concordant pairs
+$\{i,j\}$ and the number $s^{-}$ of discordant pairs.
+
+The $\Gamma$ index is classically defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\Gamma=\frac{s^{+}-s^{-}}{s^{+}+s^{-}}}
+    \label{eq-crit-baker-hubert}
+\end{equation}
+Its value is between -1 and 1.
+
+In the context of a partition, the first vector $A$ is chosen to be
+the set of distances $d_{ij}$ between pairs of points
+$\{M_{i},M_{j}\}$ (with $i<j$). The second vector $B$ is a binary
+vector: in this vector, the coordinate corresponding to a pair
+$\{M_{i},M_{j}\}$ has value 1 if the two points lie in the same
+cluster and 0 otherwise. These two vectors have length
+$N_{T}=N(N-1)/2$.
+
+The number $s^{+}$ represents the number of times a distance between
+two points which do not belong to the same cluster (that is to say a
+pair for which the value of vector $B$ is 0) is strictly smaller than
+the distance between two points belonging to the same cluster (that is
+to say a pair for which the value of vector $B$ is 1). The number
+$s^{-}$ represents the number of times the opposite situation occurs,
+that is to say that a distance between two points which do not belong
+to the same cluster (value 0 in $B$) is strictly greater than a
+distance between two points lying in the same cluster (value 1 in
+$B$). The cases where there is equality (ties or \emph{ex-aequos}) are
+not taken into account. There are $N_{B}$ between-cluster distances
+and, for each of them, one compares with the $N_{W}$ within-cluster
+distances: one finally performs $N_{B}\times N_{W}$ comparisons.
+
+One can write the numbers $s^{+}$ and $s^{-}$ in the following form:
+\begin{eqnarray}
+    s^{+} & = & \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 
+    \mathbf{1}_{\{d_{rs} < d_{uv}\}} \\
+    s^{-} & = & \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 
+    \mathbf{1}_{\{d_{rs} > d_{uv}\}}
+\end{eqnarray}
+
+Their difference is:
+\begin{equation}
+s^{+}-s^{-}=\sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} \sgn(d_{uv} - d_{rs})
+\end{equation}
+% s^{+}-s^{-}=\sum_{i<j}  sgn(a_{i} - a_{j})sgn(b_{i} - b_{j})
+
+
+\subsubsection{The GDI index}
+\label{subsubsec-int-GDI}
+
+
+The GDI indices are generalisations of the Dunn index seen in 
+section~\ref{subsubsec-int-Dunn} (GDI is 
+the abbreviation of \emph{Generalized Dunn's Indices}). They use 
+different quantities in order to evaluate the between-clusters 
+and within-groups distances.
+
+Let us denote by the letter $\delta$ a measure of the between-cluster
+distance and by $\Delta$ a measure of the within-cluster distance
+(which is also called the diameter of the cluster). The GDI index,
+relatively to these distances, is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{\min_{k\ne k'}\delta(C_{k},C_{k'})}{\max_{k}\Delta(C_{k})}}
+    \label{eq-crit-GDI}
+\end{equation}
+with $1\leq k\leq K$ and $1\leq k'\leq K$.
+
+Six different definitions of $\delta$ (denoted as $\delta_{1}$ through
+$\delta_{6}$) and three definitions of $\Delta$ (denoted as
+$\Delta_{1}$ through $\Delta_{3}$) have been suggested. This leads to
+18 different indices denoted as $\mathcal{C}_{uv}$: here $u$ is an
+integer designating the between-clusters distance ($1\leq u\leq 6$)
+and $v$ an integer designating the within-groups distance ($1\leq
+v\leq 3$).
+
+The definitions of the within-cluster distances $\Delta$ are:
+\begin{eqnarray}
+    \Delta_{1}(C_{k}) & = & \max_{{i,j\in I_{k}}\atop {i\ne j}}d(M_{i},M_{j}) \\
+    \Delta_{2}(C_{k}) & = & \frac{1}{n_{k}(n_{k}-1)}\sum_{ {i,j\in I_{k}}\atop {i\ne j} }d(M_{i},M_{j})\\
+    \Delta_{3}(C_{k}) & = & \frac{2}{n_{k}}\sum_{i\in I_{k}}d(M_{i},\clust{G})
+\end{eqnarray}
+Here $d$ is the euclidean distance. The facteur 2 in the definition of
+$\Delta_{3}$ allows us to interpret the value as a diameter rather
+than a radius.
+
+The definitions of the between-cluster distances $\delta$ are:
+\begin{eqnarray}
+    \delta_{1}(C_{k},C_{k'}) & = & \min_{ {i\in I_{k}} \atop {j\in I_{k'}}}d(M_{i},M_{j}) \\
+    \delta_{2}(C_{k},C_{k'}) & = & \max_{ {i\in I_{k}} \atop {j\in I_{k'}}}d(M_{i},M_{j}) \\
+    \delta_{3}(C_{k},C_{k'}) & = & \frac{1}{n_{k}n_{k'}}\sum_{ {i\in I_{k}} \atop {j\in I_{k'}}}d(M_{i},M_{j}) \\
+    \delta_{4}(C_{k},C_{k'}) & = &  d(\clust{G},\,\clust[k']{G})\\
+    \delta_{5}(C_{k},C_{k'}) & = & \frac{1}{n_{k}+n_{k'}} 
+    \bigg(\sum_{i\in I_{k}}d(M_{i},\clust{G}) + \sum_{j\in 
+    I_{k'}}d(M_{j},\clust[k']{G})    \bigg) \\
+    \delta_{6}(C_{k},C_{k'}) & = & \max\big\{ \sup_{i\in I_{k}}\inf_{j\in I_{k'}}d(M_{i},M_{j}),\,\sup_{j\in I_{k'}}\inf_{i\in I_{k}}d(M_{i},M_{j}) \big\}
+\end{eqnarray}
+The first four distances ($\delta_{1}$ to $\delta_{4}$) occur in ascendant clustering 
+algorithms and are called 
+\emph{single linkage, complete linkage, average linkage, centroid
+linkage} respectively. The measure $\delta_{5}$ is the weighted mean
+(with weights $n_{k}$ and $n_{k'}$) of the mean distances between 
+the points in
+clusters $C_{k}$ and $C_{k'}$ and their respective barycenter. The measure
+$\delta_{6}$ is the Hausdorff distance $D_{H}$.
+
+
+
+\subsubsection{The G\_plus index}
+\label{subsubsec-int-G-plus}
+
+Using the same notations as for the Baker-Hubert $\Gamma$ index seen
+in section~\ref{subsubsec-int-Baker-Hubert}, the $G+$ index is defined
+like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{s^{-}}{N_{T}(N_{T}-1)/2}=\frac{2s^{-}}{N_{T}(N_{T}-1)}}
+    \label{eq-crit-G-plus}
+\end{equation}
+
+
+
+
+\subsubsection{The Ksq\_DetW index}
+\label{subsubsec-int-ksq-detW}
+
+The Ksq\_DetW index (also denoted as $k^2\,|W|$) is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=K^2\det(WG)}
+    \label{eq-crit-ksq-detW}
+\end{equation}
+where $WG$ is defined as in equation~\eqref{eq-WG}.
+
+
+
+\subsubsection{The Log\_Det\_Ratio index}
+\label{subsubsec-int-Log-Det-Ratio}
+
+The Log\_Det\_Ratio index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=N\,\log\bigg(\frac{\det(T)}{\det(WG)}\bigg)}
+    \label{eq-crit-Log-Det-Ratio}
+\end{equation}
+where $T$ is the scatter matrix defined in
+section~\ref{subsubsec-dispersion-totale} and $WG$ is defined by
+equation~\eqref{eq-WG}. This is a logarithmic variant of the
+Det\_Ratio index seen in section~\label{subsubsec-int-Det-Ratio}.
+
+
+
+
+\subsubsection{The Log\_SS\_Ratio index}
+\label{subsubsec-int-Log-SS-Ratio}
+
+The Log\_SS\_Ratio index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\log\bigg(\frac{BGSS}{WGSS}\bigg) }
+    \label{eq-crit-Log-SS-Ratio}
+\end{equation}
+where $BGSS$ and $WGSS$ are defined by equations~\eqref{eq-BGSS} and 
+\eqref{eq-WGSS} respectively: they are the traces of the $BG$ and 
+$WG$ matrices respectively.
+
+
+\subsubsection{The McClain-Rao index}
+\label{subsubsec-int-McClain-Rao}
+
+% % Other tentative definitions in rev 198
+% % Third definition based on Milligan 1981a
+
+As for the C index seen in section~\ref{subsubsec-int-C-index},
+let us denote by $S_{W}$ the sum of the within-cluster distances:
+\begin{equation}
+    S_{W}=\sum_{(i,j)\in I_{W}}d(M_{i},M_{j})=\sum_{k=1}^K \sum_{ {i,j\in I_{k}}\atop {i<j} }d(M_{i},M_{j})
+\end{equation}
+Recall that the total number of distances between pairs of points
+belonging to a same cluster is $N_{W}$.
+
+Let us denote by $S_{B}$ the sum of the between-cluster distances:
+\begin{equation}
+    S_{B}=\sum_{(i,j)\in I_{B}}d(M_{i},M_{j})=\sum_{k<k'} \sum_{ {i\in I_{k},\,j\in I_{k'}} \atop {i<j}}d(M_{i},M_{j})
+\end{equation}
+The total number of distances between pairs of points which do not 
+belong to the same cluster is $N_{B}=N(N-1)/2-N_{W}$.
+
+The McClain-Rao index is defined as the quotient between the mean
+within-cluster and between-cluster distances:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{S_{W}/N_{W}}{S_{B}/N_{B}}=\frac{N_{B}}{N_{W}} \frac{S_{W}}{S_{B}}}
+    \label{eq-crit-McClain-Rao}
+\end{equation}
+
+
+
+\subsubsection{The PBM index}
+\label{subsubsec-int-PBM}
+
+
+The PBM index (acronym constituted of the initals of the names of its
+authors, Pakhira, Bandyopadhyay and Maulik) is calculated using the
+distances between the points and their barycenters and the
+distances between the barycenters themselves.
+
+Let us denote by $D_{B}$ the largest distance between two cluster barycenters:
+\begin{equation}
+    D_{B}=\max_{k<k'} d\big(\clust{G},\,\clust[k']{G}\big)
+\end{equation}
+
+On the other hand, let us denote by $E_{W}$ the sum of the distances
+of the points of each cluster to their barycenter and $E_{T}$ the sum
+of the distances of all the points to the barycenter $G$ of the
+entire data set:
+\begin{eqnarray}
+    E_{W} & = & \sum_{k=1}^K\sum_{i\in I_{k}}d(M_{i},\clust{G}) \\
+    E_{T} & = & \sum_{i=1}^Nd(M_{i},G)
+\end{eqnarray}
+
+The PBM index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \bigg( \frac{1}{K}\times\frac{E_{T}}{E_{W}}\times D_{B} \bigg)^2 }
+    \label{eq-crit-PBM}
+\end{equation}
+
+$E_{T}$ is a constant which does not depend on the partition, nor on
+the number of clusters.
+
+
+
+\subsubsection{The Point-Biserial index}
+\label{subsubsec-int-point-biserial}
+
+
+Generally speaking, in statistics, the \emph{point-biserial}
+coefficient is a correlation measure between a continuous variable $A$
+and a binary variable $B$ (i-e a variable whose values are 0 or 1).
+$A$ and $B$ are sets with the same length $n$.
+
+The values of $A$ are dispatched into two groups $A_{0}$ and $A_{1}$
+depending on the corresponding value in $B$ being 0 or 1.
+
+Let us denote by $M_{A_{0}}$ and $M_{A_{1}}$ the means in $A_{0}$ and 
+$A_{1}$, and $n_{A_{0}}$ and $n_{A_{1}}$ the number of elements in 
+each group. The  point-biserial correlation coefficient is defined 
+as the quantity:
+\begin{equation}
+r_{pb}(A,B)=\frac{M_{A_{1}}-M_{A_{0}}}{s_{n}}\sqrt{\frac{n_{A_{0}}n_{A_{1}}}{n^2}}
+\end{equation}
+where $s_{n}$ is the standard deviation of $A$. 
+
+In the context of a comparison between different clusterings, the
+term $s_{n}$ may be omitted because it does not depend on the
+partitions but only on the set of data.
+
+As in the case of the $\Gamma$ index seen in
+section~\ref{subsubsec-int-Baker-Hubert}, one adapts this definition
+by choosing $A$ to be the set of the $N_{T}$ distances between pairs
+of points $M_{i}$ and $M_{j}$. The corresponding value in $B$ is 1 if
+the two points lie in the same cluster and 0 otherwise:
+\begin{eqnarray}
+    A_{ij} & = & d(M_{i},M_{j}) \\
+    B_{ij} & = & 
+    \begin{cases}
+        1 & \mbox{if }(i,j)\in I_{W}  \\
+        0 & \mbox{otherwise}
+    \end{cases}
+\end{eqnarray}
+$M_{A_{1}}$ is the mean of all the within-cluster distances and $M_{A_{0}}$ 
+is the mean of all the between-cluster distances.
+
+Using the notations introduced in
+section~\ref{subsubsec-int-McClain-Rao}, the definition of the
+point-biserial index is :
+\begin{equation}
+    \boxed{\mathcal{C}=s_{n}\times r_{pb}(A,B)=(S_{W}/N_{W}-S_{B}/N_{B})\frac{\sqrt{N_{W}N_{B}}}{N_{T}}}
+    \label{eq-crit-point-biserial}
+\end{equation}
+
+
+
+\subsubsection{The Ratkowsky-Lance index}
+\label{subsubsec-int-ratkowsky_lance}
+
+One computes the mean $\bar{R}$ of the quotients between BGSS and TSS for each 
+dimension of the data, that is to say for each column of the matrix 
+$A$.
+
+Let us denote
+\begin{eqnarray}
+    BGSS_{j}=\sum_{k=1}^K n_{k}(\clust{\mu}_{j}-\mu_{j})^2=b_{jj} \\
+    TSS_{j}=N\Var(V_{j})=\sum_{i=1}^N (a_{ij}-\mu_{j})^2 
+\end{eqnarray}
+Then 
+\begin{equation}
+    \bar{c}^2=\bar{R}=\frac{1}{p}\sum_{j=1}^p \frac{BGSS_{j}}{TSS_{j}}
+\end{equation}
+$BGSS_{j}$ is in fact the $j$-th diagonal term of the matrix $BG$ 
+defined by equation~\eqref{eq-BG}.
+
+The Ratkowsky\_Lance index ($\bar{c}/\sqrt{K}$) is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\sqrt{\frac{\bar{R}}{K}}=\frac{\bar{c}}{\sqrt{K}}}
+    \label{eq-crit-cbar-k}
+\end{equation}
+
+
+
+\subsubsection{The Ray-Turi index}
+\label{subsubsec-int-Ray-Turi}
+
+
+The Ray-Turi index is defined as a quotient: 
+\begin{itemize}
+\item the numerator is the mean of the squared distances of all the
+points with respect to the barycenter of the cluster they belong to:
+$$\frac{1}{N}\sum_{k=1}^K\sum_{i\in I_{k}} ||\clust{M}_{i}-\clust{G}||^2
+=\frac{1}{N}\sum_{k=1}^K \clust{WGSS}=\frac{1}{N}WGSS$$
+
+\item the denominator is the minimum of the squared distances
+$\Delta_{kk'}$ between all the cluster barycenters:
+\begin{equation}
+\min_{k<k'}\Delta_{kk'}^2 = \min_{k<k'} d(\clust{G},\,\clust[k']{G})^2 = \min_{k<k'} ||\clust{G}-\clust[k']{G}||^2
+\end{equation}
+
+\end{itemize}
+
+So the Ray-Turi index can be written like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{1}{N}\frac{WGSS}{\displaystyle\min_{k<k'} \Delta_{kk'}^2}}
+    \label{eq-crit-Ray-Turi}
+\end{equation}
+
+
+
+\subsubsection{The Scott-Symons index}
+\label{subsubsec-int-Scott-Symons}
+
+This index is the weighted sum of the logarithms of the determinants 
+of the variance-covariance matrix of each cluster.
+
+It can be written like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\sum_{k=1}^K 
+    n_{k}\log\det\Big(\frac{\clust{WG}}{n_{k}}\Big)}
+    \label{eq-crit-scott-symons}
+\end{equation}
+
+The determinants of the matrices $\clust{WG}$ are greater than or 
+equal to 0 because these
+matrices are positive semi-definite. If one of them is equal to 0, 
+the index is undefined.
+
+
+\subsubsection{The SD index}
+\label{subsubsec-int-SD}
+
+One defines two quantities $\mathcal{S}$ and $\mathcal{D}$ called
+respectively the \emph{average scattering for clusters} and the
+\emph{total separation between clusters}.
+
+The average scattering for the clusters, noted $\mathcal{S}$, is defined as 
+follows. Let us consider the vector of variances for each 
+variable in the data set. It is a vector
+$\mathcal{V}$ of 
+size $p$ defined by:
+\begin{equation}
+\mathcal{V}= (\Var(V_{1}),\dots,\Var(V_{p}))
+\end{equation}
+Similarly, one defines  variance vectors 
+$\clust{\mathcal{V}}$ for each cluster $C_{k}$:
+\begin{equation}
+\clust{\mathcal{V}}= (\Var(\clust{V}_{1}),\dots,\Var(\clust{V}_{p})).
+\end{equation}
+The quantity $\mathcal{S}$ is the mean of the norms of the vectors 
+$\clust{\mathcal{V}}$ divided by the norm of vector $\mathcal{V}$:
+\begin{equation}
+\mathcal{S}=\frac{\displaystyle\frac{1}{K}\sum_{k=1}^K 
+||\clust{\mathcal{V}}||}{||\mathcal{V}||}.
+\end{equation}
+
+On the other hand, the total separation between clusters, noted 
+$\mathcal{D}$,
+is defined as follows. Let us denote by $D_{max}$ and $D_{min}$
+respectively the largest and the smallest distance between
+the barycenters of the clusters:
+\begin{eqnarray}
+    D_{max}&=&\max_{k\ne k'} ||\clust{G}-\clust[k']{G}|| \\
+    D_{min}&=&\min_{k\ne k'} ||\clust{G}-\clust[k']{G}|| 
+\end{eqnarray}
+Let us denote
+\begin{equation}
+\mathcal{D}=\frac{D_{max}}{D_{min}}\sum_{k=1}^K \frac{1}{\displaystyle\sum_{{k'=1}\atop{k'\ne k}}^K ||\clust{G}-\clust[k']{G}||}
+\end{equation}
+
+The SD index is finally defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\alpha\mathcal{S}+\mathcal{D}}
+    \label{eq-crit-SD}
+\end{equation}
+where $\alpha$ is a weight equal to the value of 
+$\mathcal{D}$ obtained for the partition with the greatest number 
+of clusters. In order to compare several partitions of the data, one 
+must first calculate the value of $\mathcal{D}$ corresponding to the 
+greatest number of clusters in order to find the value of the coefficient 
+$\alpha$ and then calculate the other indices based on this 
+coefficient.
+
+
+
+\subsubsection{The S\_Dbw index}
+\label{subsubsec-int-S-Dbw}
+
+This index relies on the notion of density of points belonging to two
+clusters. One first defines a limit value $\sigma$ equal to  the 
+square root  of the sum of the norms of the variance vectors 
+$\clust{\mathcal{V}}$ (introduced in section~\ref{subsubsec-int-SD}) 
+divided by the number of clusters:
+\begin{equation}
+\sigma=\frac{1}{K}\sqrt{\sum_{k=1}^K ||\clust{\mathcal{V}}||}
+\end{equation}
+
+The density $\gamma_{kk'}$ for a given point, relative to two clusters
+$C_{k}$ and $C_{k'}$, is equal to the number of points in these two
+clusters whose distance to this point is less than $\sigma$.
+Geometrically, this amounts to considering the ball with radius
+$\sigma$ centered at the given point and counting the number of points
+of $C_{k}\cup C_{k'}$ located in this ball.
+
+For each pair of clusters, let us evaluate the densities for the
+barycenters $\clust{G}$ and $\clust[k']{G}$ of the clusters and for
+their midpoint $H_{kk'}$. One forms the quotient $R_{kk'}$ between the
+density at the midpoint and the largest density at the two
+barycenters:
+\begin{equation}
+R_{kk'}=\frac{\gamma_{kk'}(H_{kk'})}{\max\big(\gamma_{kk'}(\clust{G}),\,\gamma_{kk'}(\clust[k']{G})\big)}
+\end{equation}
+
+On the other hand, one defines a between-cluster density $\mathcal{G}$
+as the mean of the quotients $R_{kk'}$:
+\begin{equation}
+    \mathcal{G}=\frac{2}{K(K-1)}\sum_{k<k'}R_{kk'}
+\end{equation}
+
+The S-Dbw index is defined as the sum of the mean dispersion in the
+clusters $\mathcal{S}$ (defined in section~\ref{subsubsec-int-SD}) and
+of the between-cluster density $\mathcal{G}$:
+\begin{equation}
+    \boxed{\mathcal{C}=\mathcal{S}+\mathcal{G}}
+    \label{eq-crit-S-Dbw}
+\end{equation}
+
+
+
+\subsubsection{The Silhouette index}
+\label{subsubsec-int-Silhouette}
+
+Let us consider, for each point $M_{i}$, its mean distance to each 
+cluster. One defines the within-cluster mean distance $a(i)$ as the 
+mean distance of point $M_{i}$ to the other points of the cluster it 
+belongs to: if $M_{i}\in C_{k}$, we thus have
+\begin{equation}
+    a(i) = \frac{1}{n_{k}-1}\sum_{ {i'\in I_{k}} \atop {i'\ne 
+    i}}d(M_{i},M_{i'})
+\end{equation}
+
+On the other hand, let us evaluate the mean distance 
+$\mathfrak{d}(M_{i},C_{k'})$ of $M_{i}$ to the points of each of the 
+other clusters $C_{k'}$:
+\begin{equation}
+    \mathfrak{d}(M_{i},C_{k'}) = \frac{1}{n_{k'}}\sum_{i'\in I_{k'}} d(M_{i},M_{i'})
+\end{equation}
+Let us also denote by $b(i)$ the smallest of these mean 
+distances:
+\begin{equation}
+    b(i) = \min_{k'\ne k} \mathfrak{d}(M_{i},C_{k'})
+\end{equation}
+The value $k'$ which realizes this minimum indicates the best choice
+for reaffecting, if necessary, the point $M_{i}$ to another cluster than the one it 
+currently belongs to.
+
+For each point $M_{i}$, one then forms the quotient
+\begin{equation}
+    s(i) = \frac{b(i)-a(i)}{\max\big(a(i),b(i)\big)}
+\end{equation}
+which is called the silhouette width of the point. It is a quantity
+between -1 and 1: a value near 1 indicates that the point 
+$M_{i}$ is affected to the right cluster whereas a value near -1 
+indicates that the point should be affected to another cluster.
+
+The mean of the silhouette widths for a given cluster $C_{k}$ 
+is called the cluster mean silhouette and is denoted as $\mathfrak{s}_{k}$:
+\begin{equation}
+    \mathfrak{s}_{k} = \frac{1}{n_{k}}\sum_{i\in I_{k}} s(i)
+\end{equation}
+
+Finally, the global silhouette index is the mean of the mean
+silhouettes through all the clusters:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{1}{K}\sum_{k=1}^K \mathfrak{s}_{k}}
+    \label{eq-crit-Silhouette}
+\end{equation}
+
+
+
+\subsubsection{The Tau index}
+\label{subsubsec-int-Tau}
+
+Using the same notations as for the Gamma index in
+section~\ref{subsubsec-int-Baker-Hubert}, the $\tau$ index of Kendall
+between two vectors of data of length $N_{T}$ is classically defined
+in statistics as the quantity:
+\begin{equation}
+    \tau=\dfrac{s^{+}-s^{-}}{\dfrac{N_{T}(N_{T}-1)}{2}}
+\end{equation}
+
+The numbers $s^{+}$ and $s^{-}$ do not count ties,
+so if a between-cluster distance and a
+within-cluster distance are equal, they do not enter in the
+numerator. In order to take ties into account, one modifies the
+denominator and defines the corrected index $\tau_{c}$ like this:
+\begin{equation}
+\tau_{c}=\frac{s^{+}-s^{-}}{\sqrt{(\nu_{0}-\nu_{1})(\nu_{0}-\nu_{2})}}
+\end{equation}
+with 
+\begin{eqnarray}
+    \nu_{0} & = & \frac{N_{T}(N_{T}-1)}{2}\\
+    \nu_{1} & = & \sum_{i}\frac{t_{i}(t_{i}-1)}{2}\\
+    \nu_{2} & = & \sum_{j}\frac{u_{j}(u_{j}-1)}{2}
+\end{eqnarray}
+where $t_{i}$ is the number of values in the $i$-th group 
+of ties for the vector $A$ and 
+$u_{j}$ is the number of values in the $j$-th group 
+of ties for the vector $B$. 
+Here the vector $B$ is constituted only of values 0 and 1 
+(corresponding to the 
+between-cluster and within-cluster pairs respectively) and we thus 
+have:
+\begin{equation}
+    \nu_{2} = N_{B}(N_{B}-1)/2 + N_{W}(N_{W}-1)/2
+\end{equation}
+An easy calculation shows that $\nu_{0}-\nu_{2}=N_{B}N_{W}$.
+
+If one makes the reasonable hypothesis that the vector $A$ contains 
+few identical values, one can estimate that $\nu_{2}$ is negligible 
+with respect to $\nu_{0}$. This justifies the following definition of 
+the Tau index of clustering:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{s^{+}-s^{-}}{\sqrt{N_{B}N_{W}\left(\dfrac{N_{T}(N_{T}-1)}{2}\right)}}}
+    \label{eq-crit-Tau}
+\end{equation}
+
+% Milligan:
+% it is the number of comparisons of two pairs of points where both pairs
+% represent within cluster comparisons or both pairs are between cluster
+% comparisons.
+% \begin{equation}
+%     t = N_{B}(N_{B}-1)/2 +  N_{W}(N_{W}-1)/2
+% \end{equation}
+    
+
+
+\subsubsection{The Trace\_W index}
+\label{subsubsec-int-Trace-W}
+
+The Trace\_W index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\Tr(WG)=WGSS}
+    \label{eq-crit-Trace-W}
+\end{equation}
+where $WG$ and $WGSS$ are defined by equations~\eqref{eq-WG} and 
+\eqref{eq-WGSS} respectively.
+
+
+
+\subsubsection{The Trace\_WiB index}
+\label{subsubsec-int-Trace-WiB}
+
+The Trace\_WiB (or Trace\_$W^{-1}B$) index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\Tr(WG^{-1}\,.\,BG)}
+    \label{eq-crit-Trace-WiB}
+\end{equation}
+where $WG$ and $BG$ are defined by equations~\eqref{eq-WG} and 
+\eqref{eq-BG} respectively.
+
+
+
+
+\subsubsection{The Wemmert-Gan\c{c}arski index}
+\label{subsubsec-int-Wemmert_Gancarski}
+
+The Wemmert-Gan\c{c}arski index is built using quotients of 
+distances between the points and the barycenters of all the clusters.
+
+For a point $M$ belonging to cluster $C_{k}$, one forms the quotient
+$R(M)$ between the distance of this point to the barycenter of the
+cluster it belongs to and the smallest distance of this point to the
+barycenters of all the other clusters:
+\begin{equation}
+R(M)=\frac{||M-\clust{G}||}{\displaystyle\min_{k'\ne k}||M-\clust[k']{G}||}
+\end{equation}
+
+One then takes the mean of these quotients in each cluster. If 
+this mean is greater than 1, it is ignored, otherwise one takes its 
+complement to 1. Precisely, let us define:
+\begin{equation}
+J_{k}=\max\big\{0, 1 - \frac{1}{n_{k}}\sum_{i\in I_{k}} R(M_{i}) \big\}
+\end{equation}
+
+The Wemmert-Gan\c{c}arski index is defined as the weighted mean, for all
+the clusters, of the quantities $J_{k}$ like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{1}{N}\sum_{k=1}^K n_{k}J_{k} }
+    \label{eq-crit-Wemmert_Gancarski}
+\end{equation}
+
+This expression can be rewritten as follows:
+\begin{equation}
+\mathcal{C}=\frac{1}{N}\sum_{k=1}^K \max\big\{0, n_{k} - \sum_{i\in I_{k}} R(M_{i}) \big\}
+\end{equation}
+
+
+
+
+\subsubsection{The Xie-Beni index}
+\label{subsubsec-int-Xie_Beni}
+
+
+The Xie-Beni index is an index of fuzzy clustering, but it is also
+applicable to crisp clustering.
+
+It is defined as the quotient between the mean quadratic error and the
+minimum of the minimal squared distances between the points in the
+clusters.
+
+The mean quadratic error, in the case of a crisp clustering, is simply
+the quantity $\frac{1}{N}WGSS$, in other words the mean of the squared
+distances of all the points with respect to the barycenter of the
+cluster they belong to.
+
+Using the same notation as in section~\ref{subsubsec-int-GDI}, one has
+\begin{equation}
+\delta_{1}(C_{k},C_{k'}) = \min_{ {i\in I_{k}} \atop {j\in I_{k'}}}d(M_{i},M_{j})
+\end{equation}
+and the Xie-Beni index can be written like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{1}{N}\frac{WGSS}{\displaystyle\min_{k<k'} \delta_{1}(C_{k},C_{k'})^2}}
+    \label{eq-crit-Xie_Beni}
+\end{equation}
+
+
+\subsection{Choice of the best partition}
+\label{subsec-ext-best-choice}
+
+\begin{table}[tbp]
+    \centering
+    \begin{tabular}{|l|l|c|c|}
+        \hline
+         \emph{Index} & \emph{Rule} \\
+        \hline
+            Ball\_Hall & \emph{max diff} \\
+            Banfeld\_Raftery & \emph{min} \\
+            C\_index & \emph{min} \\
+            Calinski\_Harabasz & \emph{max} \\
+            Davies\_Bouldin & \emph{min} \\
+            Det\_Ratio & \emph{min diff} \\
+            Dunn & \emph{max} \\
+            GDI & \emph{max} \\
+            Gamma & \emph{max} \\
+            G\_plus & \emph{min} \\
+            Ksq\_DetW & \emph{max diff} \\
+            Log\_Det\_Ratio & \emph{min diff} \\
+            Log\_SS\_Ratio & \emph{min diff} \\
+            McClain\_Rao & \emph{min} \\
+            PBM & \emph{max} \\
+            Point\_biserial & \emph{max} \\
+            Ratkowsky\_Lance & \emph{max} \\
+            Ray\_Turi & \emph{min} \\
+            Scott\_Symons & \emph{min} \\
+            SD & \emph{min} \\
+            S\_Dbw & \emph{min} \\
+            Silhouette & \emph{max} \\
+            Tau & \emph{max} \\
+            Trace\_W & \emph{max diff} \\
+            Trace\_WiB & \emph{max diff} \\
+            Wemmert\_Gancarski & \emph{max} \\
+            Xie\_Beni & \emph{min} \\
+        \hline
+    \end{tabular}
+    \caption{\label{tbl-indices-best-choice}Method to determine the 
+    best partition.}
+\end{table}
+
+In order to find the best partition of the data, one usually executes
+a clustering algorithm with different values of the expected number of
+clusters $K$: let us say that $K_{m}\leq K\leq K_{M}$. The clustering
+algorithm which is applied could be an ascending hierarchical
+clustering (AHC) or the k-means algorithm or any other technique. One
+then computes a quality index $Q_{K}$ for each value of $K$ and
+selects the partition which led to the "best" value for $Q_{K}$. This
+section explains what is considered the "best" value for the different
+quality indices.
+
+Table~\ref{tbl-indices-best-choice} summarizes, for each index, which
+rule must be applied in order to determine the best index value. For
+instance, in the case of the Calinski-Harabasz index, if the quality
+index has been computed for different partitions of the data, the best
+partition is the one corresponding to the greatest value of the index.
+
+The decision rules called \emph{max} and \emph{min} in 
+table~\ref{tbl-indices-best-choice} mean that one  
+should select respectively the greatest or the smallest index value.
+
+The decision rule called \emph{max diff} means that the best value for $K$
+is the one corresponding to the greatest difference between two
+successive slopes. On a diagram representing the index values 
+against the number of selected clusters, this corresponds to an 
+elbow. More precisely, let us denote $V_{i}=Q_{i+1}-Q_{i}$ the slope 
+between to successive points of the diagram. Then $K$ is defined by:
+\begin{equation}
+    K=\mathrm{arg}\max_{K_{m}< i\leq K_{M}}(V_{i}-V_{i-1})
+\end{equation}
+
+This is better explained on the following graphic. The figure on the
+right displays the values of the Hall\_Ball index corresponding to
+different clusterings of the data represented by the figure on the
+left. The index has been computed with tentative partitions made of 2 to 7
+clusters. The figure exhibits an elbow for the four-clusters
+partition and indeed the data clearly belong to four distinct groups.
+\begin{center}
+<<echo=FALSE, fig=TRUE, width=16,height=8>>=
+    library(clusterCrit)
+    dataPath <- file.path(path.package(package="clusterCrit"),"unitTests","data","testsInternal_400_4.Rdata")
+    load(file=dataPath, envir=.GlobalEnv)
+    traj <- traj_400_4
+    part <- part_400_4
+	critName <- "Ball_Hall"
+    vals <- vector(mode="numeric",length=6)
+    for (k in 2:7) {
+        idx <- intCriteria(traj,part[[k]],critName)
+        vals[k-1] <- idx
+    }
+	par(mfrow=c(1,2))
+	plot(traj[,1],traj[,2],col=part[[4]],xlab="",ylab="",asp=1)
+    plot(2:7,vals,type='o',main=critName,xlab="# of clusters",ylab="Index",asp=1)
+    # bestidx <- bestCriterion(vals,critName)
+    # points(bestidx,vals[bestidx+1],pch=8,col="green")
+	par(mfrow=c(1,1))
+@
+\end{center}
+
+
+
+\section{External comparison indices}
+\label{sec-clust-ext-idx}
+
+
+The external indices of comparison are indices designed to measure the
+similitude between two partitions. They take into account only the
+distribution of the points in the different clusters and do not allow
+to measure the quality of this distribution.
+
+\subsection{Notation}
+\label{subsec-ext-crit-notation}
+
+All the suggested indices rely on a confusion matrix 
+representing the count of pairs of points depending on whether they 
+are considered as belonging to the same cluster or not according to 
+partition $P_{1}$ or to partition $P_{2}$. There are thus four 
+possibilities:
+\begin{itemize}
+\item the two points belong to the same cluster, according to
+both $P_{1}$ and $P_{2}$
+
+\item  the two points belong to the same cluster according to 
+$P_{1}$ but not to $P_{2}$
+
+\item  the two points belong to the same cluster acording to 
+$P_{2}$ but not to $P_{1}$
+
+\item the two points do not belong to the same cluster, according to
+both $P_{1}$ and $P_{2}$.
+
+\end{itemize}
+
+Let us denote by $yy$, $yn$, $ny$, $nn$ ($y$ means \emph{yes}, and $n$
+means \emph{no}) the number of points belonging to these four
+categories respectively. $N_{T}$ being the total number of pairs of
+points, one has:
+\begin{equation}
+N_{T}=\frac{N(N-1)}{2}=yy+yn+ny+nn.
+\end{equation}
+
+
+\subsection{Precision and recall coefficients}
+\label{subsec-coeff-prec-rapp}
+
+
+If partition $P_{1}$ is used as a reference, one defines the
+\emph{precision coefficient} as the proportion of points rightly
+grouped together in $P_{2}$, that is to say which are also grouped
+together according to the reference partition $P_{1}$. Among the
+$yy+ny$ points grouped together according to $P_{2}$, $yy$ are rightly grouped.
+One thus has:
+\begin{equation}
+    \mathcal{P}=\frac{yy}{yy+ny}.
+    \label{eq-precision-coeff}
+\end{equation}
+
+Similarly, one defines the \emph{recall coefficient} as the proportion
+of points grouped together in $P_{1}$ which are also grouped together
+in partition $P_{2}$. This is the proportion of points which are
+supposed to be grouped together according to the reference partition
+$P_{1}$ and which are effectively marked as such by partition 
+$P_{2}$. Among the $yy+yn$ points grouped together in
+$P_{1}$, $yy$ are also grouped together in $P_{2}$. One thus has:
+\begin{equation}
+    \mathcal{R}=\frac{yy}{yy+yn}
+    \label{eq-recall-coeff}
+\end{equation}
+
+In terms of conditional probabilities, one can write 
+\begin{equation}
+    \mathcal{P}=P(gp_{1}|gp_{2})\quad\mbox{and}\quad\mathcal{R}=P(gp_{2}|gp_{1})
+\end{equation}
+where the events $gp_{1}$ and $gp_{2}$ mean that two points are
+grouped together in $P_{1}$ and in $P_{2}$ respectively.
+
+The $\mathcal{F}$-measure is the harmonic mean of the precision and 
+recall coefficients:
+\begin{equation}
+    \mathcal{F}=\frac{2}{\dfrac{1}{\mathcal{P}}+\dfrac{1}{\mathcal{R}}}
+    =\frac{2\mathcal{P}\times\mathcal{R}}{\mathcal{P}+\mathcal{R}}=\frac{2yy}{2yy+yn+ny}
+\end{equation}
+
+There is also a weighted version of this measure, called the 
+$\mathcal{F}_{\alpha}$-measure, defined like this:
+\begin{equation}
+    \mathcal{F}_{\alpha}=\frac{(1+\alpha)\mathcal{P}\times\mathcal{R}}{\alpha\mathcal{P}+\mathcal{R}}\mbox{ with }\alpha>0
+\end{equation}
+
+
+
+\subsection{Indicator variables}
+\label{subsec-var-indic}
+
+Let us associate to each partition $P_{a}$ ($a=1,2$) the binary 
+random variable $X_{a}$ defined on the set of indices $i$ and $j$ 
+such that 
+$i<j$ as follows: its value is 1 if the points $M_{i}$ and
+$M_{j}$ are classified in the same cluster than in partition $P_{a}$ and
+0 otherwise. The variable $X_{a}$ works as an indicator variable.
+
+There are $N_{T}$ pairs of points and one is interested only in the indices 
+$i$ and $j$ such that $i<j$. Let us consider the mean and 
+the standard deviation of $X_{a}$:
+\begin{eqnarray}
+    \mu_{X_{a}} & = & \frac{1}{N_{T}} \sum_{i<j} X_{a}(i,j)\\
+    \sigma_{X_{a}}^2 & = & \frac{1}{N_{T}} \sum_{i<j} X_{a}(i,j)^2 - \mu_{X_{a}}^2
+\end{eqnarray}
+
+The following formulas establish a link between these random variables and the 
+concordant and discordant count variables:
+\begin{eqnarray}
+    yy+yn & = & \sum_{i<j} X_{1}(i,j)\\
+    yy+ny & = & \sum_{i<j} X_{2}(i,j)\\
+    yy & = & \sum_{i<j} X_{1}(i,j)X_{2}(i,j)
+\end{eqnarray}
+\par From this we get:
+\begin{align*}
+    \mu_{X_{1}} = \frac{yy+yn}{N_{T}} &\quad&
+    \sigma_{X_{1}}^2 = \frac{yy+yn}{N_{T}}-\Big(\frac{yy+yn}{N_{T}}\Big)^2\\
+    \mu_{X_{2}} = \frac{yy+ny}{N_{T}} &\quad&
+    \sigma_{X_{2}}^2 = \frac{yy+ny}{N_{T}}-\Big(\frac{yy+ny}{N_{T}}\Big)^2
+\end{align*}
+
+% \begin{eqnarray}
+%     \mu_{X_{1}} & = & \frac{yy+yn}{N_{T}}\\
+%     \sigma_{X_{1}}^2 & = & \frac{yy+yn}{N_{T}}-\Big(\frac{yy+yn}{N_{T}}\Big)^2\\
+%     \mu_{X_{2}} & = & \frac{yy+ny}{N_{T}}\\
+%     \sigma_{X_{2}}^2 & = & \frac{yy+ny}{N_{T}}-\Big(\frac{yy+ny}{N_{T}}\Big)^2
+% \end{eqnarray}
+
+
+\subsection{External indices definition}
+\label{subsec-ext-crit-defs}
+
+The following sections give the definition of several (more or less)
+widely used external indices.
+
+
+\subsubsection{The Czekanowski-Dice index}
+\label{subsubsec-ext-Czekanowski-Dice}
+
+
+The Czekanowski-Dice index (aka the Ochiai index) is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{2yy}{2yy+yn+ny}}
+    \label{eq-crit-Czekanowski-Dice}
+\end{equation}
+
+This index is the harmonic mean of the precision and recall coefficients, 
+that is to say it is identical to the $\mathcal{F}$-measure defined 
+in section~\ref{subsec-coeff-prec-rapp}:
+\begin{equation}
+    \mathcal{C}=2\frac{\mathcal{P}\times\mathcal{R}}{\mathcal{P}+\mathcal{R}}
+\end{equation}
+
+
+
+\subsubsection{The Folkes-Mallows index}
+\label{subsubsec-ext-Folkes-Mallows}
+
+% % appelŽ aussi indice d'Ochiai
+
+The Folkes-Mallows index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{yy}{\sqrt{(yy + yn)\times(yy + ny)}}}
+    \label{eq-crit-Folkes-Mallows}
+\end{equation}
+
+This index is the geometric mean of the precision and recall 
+coefficients:
+\begin{equation}
+    \mathcal{C}=\sqrt{\mathcal{P}\mathcal{R}}
+\end{equation}
+
+
+
+\subsubsection{The Hubert $\hat{\Gamma}$ index}
+\label{subsubsec-ext-Gamma-Hubert}
+
+The index of Hubert $\hat{\Gamma}$ is the correlation coefficient of
+the indicator variables introduced in section~\ref{subsec-var-indic}.
+It is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\Corr(X_{1},X_{2})=
+    \frac{\displaystyle\sum_{i<j} \big(X_{1}(i,j) - \mu_{X_{1}}\big) \big(X_{2}(i,j) - \mu_{X_{2}}\big)}
+         {N_{T}\,\sigma_{X_{1}}\sigma_{X_{2}}}}
+    \label{eq-crit-Gamma}
+\end{equation}
+
+Comparing with equation~\eqref{eq-var-Russel-Rao}, the index of Hubert
+$\hat{\Gamma}$ appears as a standardized variant (centered and
+reduced) of the Russel-Rao index defined in
+section~\ref{subsubsec-ext-Russel-Rao}. Its value is between -1 and 1.
+
+Using the relations of section~\ref{subsec-var-indic}, one may write 
+the $\hat{\Gamma}$ index as follows:
+\begin{equation}
+    \mathcal{C}=\frac{N_{T}\times yy-(yy+yn)(yy+ny)}{\sqrt{(yy+yn)(yy+ny)(nn+yn)(nn+ny)}}
+\end{equation}
+
+
+
+\subsubsection{The Jaccard index}
+\label{subsubsec-ext-Jaccard}
+
+The Jaccard index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{yy}{(yy + yn + ny)}}
+    \label{eq-crit-Jaccard}
+\end{equation}
+
+
+
+\subsubsection{The Kulczynski index}
+\label{subsubsec-ext-Kulczynski}
+
+The Kulczynski index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{1}{2}\bigg(\frac{yy}{yy+ny} + \frac{yy}{yy+yn}\bigg)}
+    \label{eq-crit-Kulczynski}
+\end{equation}
+
+This index is the arithmetic mean of the precision and recall
+coefficients:
+\begin{equation}
+    \mathcal{C}=\frac{1}{2}(\mathcal{P}+\mathcal{R})
+\end{equation}
+
+
+
+\subsubsection{The McNemar index}
+\label{subsubsec-ext-McNemar}
+
+The McNemar index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{nn-ny}{\sqrt{nn+ny}}}
+    \label{eq-crit-McNemar}
+\end{equation}
+
+Under the null hypothesis $H_{0}$ that the discordances between the
+partitions $P_{1}$ and $P_{2}$ are random, the index $\mathcal{C}$
+follows approximatively a normal distribution. It is an adaptation of
+the non-parametric test of McNemar for the comparison of frequencies
+between two paired samples: the statistic $\mathcal{C}^2$ (called the 
+$\chi^2$ distance) defined as
+$$
+\mathcal{C}^2=\frac{(nn-ny)^2}{nn+ny}
+$$
+follows a $\chi^2$ distribution with 1 degree of freedom.
+
+
+
+\subsubsection{The Phi index}
+\label{subsubsec-ext-Phi}
+
+The Phi index is a classical measure of the correlation 
+between two dichotomic variables. It is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{yy\times nn - yn\times ny}{(yy+yn)(yy+ny)(yn+nn)(ny+nn)}}
+    \label{eq-crit-Phi}
+\end{equation}
+
+
+
+\subsubsection{The Rand index}
+\label{subsubsec-ext-Rand}
+
+The Rand index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{yy + nn}{N_{T}}}
+    \label{eq-crit-Rand}
+\end{equation}
+
+
+
+\subsubsection{The Rogers-Tanimoto index}
+\label{subsubsec-ext-Rogers-Tanimoto}
+
+The Rogers-Tanimoto index is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}= \frac{yy+nn}{yy+nn+2(yn+ny)}}
+    \label{eq-crit-Rogers-Tanimoto}
+\end{equation}
+
+
+\subsubsection{The Russel-Rao index}
+\label{subsubsec-ext-Russel-Rao}
+
+The Russel-Rao index measures the proportion of concordances between the two 
+partitions. It is defined like this:
+\begin{equation}
+    \boxed{\mathcal{C}=\frac{yy}{N_{T}}}
+    \label{eq-crit-Russel-Rao}
+\end{equation}
+
+Using the notations introduced in section~\ref{subsec-var-indic}, this
+index can be written:
+\begin{equation}
+    \mathcal{C} = \frac{1}{N_{T}}\sum_{i<j} X_{1}(i,j)X_{2}(i,j)
+    \label{eq-var-Russel-Rao}
+\end{equation}
+
+
+
+\subsubsection{The Sokal-Sneath indices}
+\label{subsubsec-ext-Sokal-Sneath}
+
+There are two versions of the Sokal-Sneath index. They are defined 
+respectively like this:
+\begin{equation}
+    \fbox{\parbox[]{6cm}{    
+        \begin{eqnarray*}
+            \mathcal{C}_{1} & = & \frac{yy}{yy+2(yn+ny)}\\
+            \mathcal{C}_{2} & = & \frac{yy+nn}{yy+nn+\frac{1}{2}(yn+ny)}
+        \end{eqnarray*}
+    }}
+\end{equation}
+
+
+% Temps of calcul en millisecondes sur MacBook for 150 observations
+% 
+% \begin{tabular}{|l|c|}
+%     \hline
+%     ball_hall & 2.6 \\
+%     banfeld_raftery & 2.6 \\
+%     c_index & 6.8 \\
+%     calinski_harabasz & 3.6 \\
+%     davies_bouldin & 2.6 \\
+%     det_ratio & 2.8 \\
+%     dunn & 2.6 \\
+%     g_plus & 4.9 \\
+%     gamma & 4.9 \\
+%     gdi11 & 2.6 \\
+%     gdi12 & 2.6 \\
+%     gdi13 & 2.6 \\
+%     gdi21 & 2.6 \\
+%     gdi22 & 2.5 \\
+%     gdi23 & 2.6 \\
+%     gdi31 & 2.5 \\
+%     gdi32 & 2.6 \\
+%     gdi33 & 2.6 \\
+%     gdi41 & 2.4 \\
+%     gdi42 & 2.5 \\
+%     gdi43 & 2.5 \\
+%     gdi51 & 2.5 \\
+%     gdi52 & 2.5 \\
+%     gdi53 & 2.5 \\
+%     ksq_detw & 2.7 \\
+%     log_det_ratio & 2.7 \\
+%     log_ss_ratio & 2.5 \\
+%     point_biserial & 2.5 \\
+%     ratkowsky_lance & 2.5 \\
+%     ray_turi & 2.6 \\
+%     s_dbw & 2.7 \\
+%     scott_symons & 2.7 \\
+%     sd_dis & 2.5 \\
+%     sd_scat & 2.5 \\
+%     tau & 4.8 \\
+%     trace_w & 2.5 \\
+%     trace_wib & 3.3 \\
+%     \hline
+% \end{tabular}
+
+% % > mean(V2)
+% % [1] 2.918919
+
+% Temps of calcul en millisecondes sur MacMini for 150 observations
+% 
+
+% \begin{tabular}{|l|c|}
+%     \hline
+%     ball_hall & 1.9 \\
+%     banfeld_raftery & 2.1 \\
+%     c_index & 4.3 \\
+%     calinski_harabasz & 1.9 \\
+%     davies_bouldin & 2. \\
+%     det_ratio & 2.2 \\
+%     dunn & 2. \\
+%     gamma & 3.3 \\
+%     g_plus & 3.4 \\
+%     gdi11 & 2.1 \\
+%     gdi12 & 2. \\
+%     gdi13 & 2. \\
+%     gdi21 & 2. \\
+%     gdi22 & 2. \\
+%     gdi23 & 2. \\
+%     gdi31 & 2. \\
+%     gdi32 & 2. \\
+%     gdi33 & 2. \\
+%     gdi41 & 1.9 \\
+%     gdi42 & 1.9 \\
+%     gdi43 & 1.9 \\
+%     gdi51 & 1.9 \\
+%     gdi52 & 1.9 \\
+%     gdi53 & 1.9 \\
+%     ksq_detw & 2. \\
+%     log_det_ratio & 2. \\
+%     log_ss_ratio & 2. \\
+%     mcclain_rao & 2. \\
+%     pbm & 2.3 \\
+%     point_biserial & 2. \\
+%     ray_turi & 1.9 \\
+%     ratkowsky_lance & 2. \\
+%     scott_symons & 2.1 \\
+%     sd_scat & 1.9 \\
+%     sd_dis & 2. \\
+%     s_dbw & 2.1 \\
+%     tau & 3.3 \\
+%     trace_w & 1.9 \\
+%     trace_wib & 2.2 \\
+%     \hline
+% \end{tabular}
+
+% % > mean(V2)
+% % [1] 2.157895
+
+
+\section{Usage of the \emph{clusterCrit} package}
+\label{sec-clusterCrit-usage}
+
+
+The \emph{clusterCrit} package for R provides an implementation of all
+the indices described in the preceding sections. The core of the
+package is written in Fortran and is optimized in order to avoid
+duplicate calculations.
+
+It can be installed from the R console with the following instruction:
+\begin{verbatim}
+    install.packages(clusterCrit)
+\end{verbatim}
+
+Once it is installed, it can be loaded in an R session with the
+following instruction:
+\begin{verbatim}
+    load(clusterCrit)
+\end{verbatim}
+
+
+\subsection{Available commands}
+\label{subsec-pkg-commands}
+
+The \emph{clusterCrit} package defines several functions which let you compute internal quality
+indices or external comparison indices. The partitions are specified
+as an integer vector giving the index of the cluster each observation
+belongs to. The possible values are integers between 1 and $K$, where
+$K$ is the number of clusters.
+
+\par\medskip The \emph{intCriteria} function calculates one or several internal
+quality indices. Its syntax is:
+\begin{verbatim}
+    intCriteria(traj, part, crit)
+\end{verbatim}
+The \emph{traj} argument is the matrix of observations (aka as
+trajectories). The \emph{part} argument is the partition vector. The
+\emph{crit} argument is a list containing the names of the indices to
+compute. One can use the keyword \verb|"all"| in order to compute all
+the available indices. See the \emph{getCriteriaNames} function to see
+the names of the currently available indices. All the names are case
+insensitive and can be abbreviated as long as the abbreviation remains
+unambiguous.
+
+
+\par\medskip The \emph{extCriteria} function calculates one or several external
+indices (including the precision and recall coefficients). Its syntax
+is:
+\begin{verbatim}
+    extCriteria(part1, part2, crit)
+\end{verbatim}
+The \emph{part1} and \emph{part2} arguments are the partition vectors.
+The meaning of the \emph{crit} argument is the same as for the
+\emph{intCriteria} function.
+
+
+\par\medskip Given a vector of several clustering quality index values computed
+with a given criterion, the function \emph{bestCriterion} returns the
+index of the one which must be considered as the best in the sense of
+the specified criterion. 
+Its syntax is:
+\begin{verbatim}
+    bestCriterion(x, crit)
+\end{verbatim}
+The \emph{x} argument is a numeric vector of quality index values. The
+\emph{crit} argument is the name of the criterion: it is case
+insensitive and can be abbreviated.
+
+Typically, a set of data is clusterized several times (using different
+algorithms or specifying a different number of clusters) and a
+clustering index is calculated each time: the \emph{bestCriterion}
+function tells which value is considered the best. For instance, if
+one uses the Calinski\_Harabasz index, the best value is the largest
+one.
+
+The \emph{concordance} function calculates the concordance matrix
+between two partitions of the same data. Its syntax is:
+\begin{verbatim}
+    concordance(part1, part2)
+\end{verbatim}
+The arguments are the partition vectors. The function returns
+a $2\times 2$ matrix of the form:
+$$
+\begin{pmatrix}
+    yy & yn \\
+    ny & nn
+\end{pmatrix}
+$$
+
+\par\medskip The \emph{getCriteriaNames} function is a convenience function which 
+returns the names of the currently implemented indices. Its syntax is:
+\begin{verbatim}
+    getCriteriaNames(isInternal)
+\end{verbatim}
+where the argument \emph{isInternal} is a logical value: if TRUE it returns 
+the names of the internal indices, otherwise it returns the names of 
+the external ones.
+
+
+\subsection{Examples of use}
+\label{subsec-pkg-examples}
+
+First load the package:
+<<echo=TRUE>>=
+library(clusterCrit)
+@
+
+Let us create some artificial data:
+<<echo=TRUE>>=
+x <- rbind(matrix(rnorm(100, mean = 0, sd = 0.5), ncol = 2),
+           matrix(rnorm(100, mean = 1, sd = 0.5), ncol = 2),
+           matrix(rnorm(100, mean = 2, sd = 0.5), ncol = 2))
+@
+
+
+Now perform the \emph{kmeans} algorithm in order to get a partition 
+with 3 clusters (the \emph{kmeans} function is provided by R in the 
+\emph{stats} package and is available by default):
+<<echo=TRUE>>=
+cl <- kmeans(x, 3)
+@
+
+Let us get the names of the internal indices:
+<<echo=TRUE>>=
+getCriteriaNames(TRUE)
+@
+
+
+Let us compute all the internal indices and display one of them:
+<<echo=TRUE>>=
+intIdx <- intCriteria(x,cl$cluster,"all")
+length(intIdx)
+intIdx[["trace_w"]]
+@
+
+It is possible to compute only a few indices:
+<<echo=TRUE>>=
+intCriteria(x,cl$cluster,c("C_index","Calinski_Harabasz","Dunn"))
+@
+
+
+The names are case insensitive and can be abbreviated:
+<<echo=TRUE>>=
+intCriteria(x,cl$cluster,c("det","cal","dav"))
+@
+
+
+Here is now an example of the external criteria. Let us generate two
+artificial partitions:
+<<echo=TRUE>>=
+part1<-sample(1:3,150,replace=TRUE)
+part2<-sample(1:5,150,replace=TRUE)
+@
+
+Let us get the names of the external indices:
+<<echo=TRUE>>=
+getCriteriaNames(FALSE)
+@
+
+Let us compute all the external indices and retrieve one of them:
+<<echo=TRUE>>=
+extIdx <- extCriteria(part1,part2,"all")
+length(extIdx)
+extIdx[["jaccard"]]
+@
+
+Let us compute only some of them:
+<<echo=TRUE>>=
+extCriteria(part1,part2,c("Rand","Folkes"))
+@
+
+The names are case insensitive and can be abbreviated:
+<<echo=TRUE>>=
+extCriteria(part1,part2,c("ra","fo"))
+@
+
+
+\subsection{Benchmark}
+\label{subsec-benchmark}
+
+The \emph{clusterCrit} package is written in Fortran which makes the
+calculations quite fast. Nevertheless some indices are more demanding
+and require more computations than the others. The following timings
+have been evaluated using the \emph{rbenchmark} package: the various
+indices have been computed separately 100 times on a set of 400 points
+partitionned in four groups. The results are not interesting \emph{per se}
+but rather to compare the amount of computations required by the
+different indices.
+
+The following table summarizes the timings for the internal indices
+(they are expressed in seconds for 100 replications, so they must all
+be divided by 100):
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline
+        all & 3.095 \\
+        \hline
+        Ball\_Hall & 0.944 \\
+        \hline
+        Banfeld\_Raftery & 0.946 \\
+        \hline
+        C\_index & 2.898 \\
+        \hline
+        Calinski\_Harabasz & 0.930 \\
+        \hline
+        Davies\_Bouldin & 0.926 \\
+        \hline
+        Det\_Ratio & 0.930 \\
+        \hline
+        Dunn & 0.969 \\
+        \hline
+        Gamma & 2.188 \\
+        \hline
+        G\_plus & 2.170 \\
+        \hline
+        GDI11 & 0.985 \\
+        \hline
+        GDI12 & 0.971 \\
+        \hline
+        GDI13 & 0.957 \\
+        \hline
+        GDI21 & 0.966 \\
+        \hline
+        GDI22 & 0.961 \\
+        \hline
+        GDI23 & 0.953 \\
+        \hline
+        GDI31 & 0.959 \\
+        \hline
+        GDI32 & 0.957 \\
+        \hline
+        GDI33 & 0.948 \\
+        \hline
+        GDI41 & 0.936 \\
+        \hline
+        GDI42 & 0.933 \\
+        \hline
+        GDI43 & 0.923 \\
+        \hline
+        GDI51 & 0.934 \\
+        \hline
+        GDI52 & 0.934 \\
+        \hline
+        GDI53 & 0.921 \\
+        \hline
+        Ksq\_DetW & 0.930 \\
+        \hline
+        Log\_Det\_Ratio & 0.930 \\
+        \hline
+        Log\_SS\_Ratio & 0.923 \\
+        \hline
+        McClain\_Rao & 0.958 \\
+        \hline
+        PBM & 0.928 \\
+        \hline
+        Point\_Biserial & 0.959 \\
+        \hline
+        Ray\_Turi & 0.923 \\
+        \hline
+        Ratkowsky\_Lance & 0.923 \\
+        \hline
+        Scott\_Symons & 0.965 \\
+        \hline
+        SD\_Scat & 0.930 \\
+        \hline
+        SD\_Dis & 0.923 \\
+        \hline
+        S\_Dbw & 0.924 \\
+        \hline
+        Silhouette & 0.992 \\
+        \hline
+        Tau & 2.174 \\
+        \hline
+        Trace\_W & 0.945 \\
+        \hline
+        Trace\_WiB & 0.952 \\
+        \hline
+        Wemmert\_Gancarski & 0.960 \\
+        \hline
+        Xie\_Beni & 0.978 \\
+        \hline
+    \end{tabular}
+\end{center}
+
+We observe that the C index is the most time consuming. The gamma, 
+g\_plus and tau indices also need intensive calculations because the 
+concordance and discordance counts concern a huge quantity of pairs 
+of points. All the other indices yield more or less the same values.
+
+Using the keyword \verb|"all"| in the \emph{intCriteria} function is
+quite efficient because the code is optimized to avoid duplicate
+calculations and to reuse values already computed for other indices.
+The timing result for calculating all the indices simultaneously 100
+times is 3.095.
+
+On the contrary, benchmarking the external indices does not exhibit
+any noticeable difference. They all take more or less the same time
+and are very fast. Here are the results for 100 replications of the
+\emph{extCriteria} function applied to two partitions containing 150
+items:
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline
+        all & 0.010 \\
+        \hline
+        Czekanowski\_Dice & 0.010 \\
+        \hline
+        Folkes\_Mallows & 0.010 \\
+        \hline
+        Hubert & 0.011 \\
+        \hline
+        Jaccard & 0.010 \\
+        \hline
+        Kulczynski & 0.011 \\
+        \hline
+        McNemar & 0.010 \\
+        \hline
+        Phi & 0.010 \\
+        \hline
+        Precision & 0.010 \\
+        \hline
+        Rand & 0.010 \\
+        \hline
+        Recall & 0.011 \\
+        \hline
+        Rogers\_Tanimoto & 0.010 \\
+        \hline
+        Russel\_Rao & 0.011 \\
+        \hline
+        Sokal\_Sneath1 & 0.010 \\
+        \hline
+        Sokal\_Sneath2 & 0.009 \\
+        \hline
+    \end{tabular}
+\end{center}
+
+
+\newpage
+\addcontentsline{toc}{section}{Bibliography}
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{clusterCrit}
+
+\end{document}
+

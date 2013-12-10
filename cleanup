@@ -19,4 +19,4 @@ if test -e autom4te.cache; then \
 	rm -rf autom4te.cache/*; \
 	rmdir autom4te.cache; \
 fi
-rm -f inst/doc/*.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz} 
+rm -f vignettes/*.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz} 
