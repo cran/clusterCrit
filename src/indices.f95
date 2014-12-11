@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "indices.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2012-10-20 18:00:55
+!              Last modification: 2014-12-04 12:41:52
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -40,15 +40,14 @@ MODULE INDICES
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_ball_hall(x,p,v)" --
+! "SUBROUTINE cluc_crit_ball_hall(p,v)" --
 ! 
 ! Needs sWgPtsBarySumPow.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_ball_hall(x,p,v)
+SUBROUTINE cluc_crit_ball_hall(p,v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: r
@@ -67,17 +66,16 @@ END SUBROUTINE cluc_crit_ball_hall
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_banfeld_raftery(x,p,v)" --
+! "SUBROUTINE cluc_crit_banfeld_raftery(p,v)" --
 ! 
 ! Needs sWKMat.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_banfeld_raftery(x,p,v)
+SUBROUTINE cluc_crit_banfeld_raftery(p,v)
       use matrix
       
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: r
@@ -98,16 +96,13 @@ END SUBROUTINE cluc_crit_banfeld_raftery
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_c_index(x,p,v)" --
+! "SUBROUTINE cluc_crit_c_index(v)" --
 ! 
 ! Needs sWgDist and sBgDist.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_c_index(x,p,v)
-
+SUBROUTINE cluc_crit_c_index(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision :: smin, smax, stot
       integer :: e
@@ -135,7 +130,7 @@ SUBROUTINE cluc_crit_calinski_harabasz(x,p,v)
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
 
-      call cluc_wgss(x,p)
+      call cluc_wgss()
       call cluc_bgss(x,p)
       v = ((sNr-sNk)*sBgss) / ((sNk-1)*sWgss)
     
@@ -145,16 +140,15 @@ END SUBROUTINE cluc_crit_calinski_harabasz
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_davies_bouldin(x,p,v)" --
+! "SUBROUTINE cluc_crit_davies_bouldin(p,v)" --
 ! 
 ! Needs sWgPtsBarySum and sBgPairsBary.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_davies_bouldin(x,p,v)
+SUBROUTINE cluc_crit_davies_bouldin(p,v)
 
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: m, d
@@ -200,7 +194,6 @@ SUBROUTINE cluc_crit_det_ratio(x,p,v)
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
-      double precision :: dt, dw
         
       call cluc_det_w(x,p)
       call cluc_det_t(x,p)  
@@ -212,17 +205,15 @@ END SUBROUTINE cluc_crit_det_ratio
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_dunn(x,p,v)" --
+! "SUBROUTINE cluc_crit_dunn(v)" --
 ! 
 ! Needs min inter-group distances matrix sBgPairsMin and max intra-group
 ! distances vector sWgPairsMax.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_dunn(x,p,v)
+SUBROUTINE cluc_crit_dunn(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
         
       v = minval(sBgPairsMin)/maxval(sWgPairsMax)
@@ -233,20 +224,18 @@ END SUBROUTINE cluc_crit_dunn
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_gamma(x,p,v)" --
+! "SUBROUTINE cluc_crit_gamma(v)" --
 ! 
 ! Needs sConc (which depends on sWgDist, sBgDist, sPNum).
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_gamma(x,p,v)
+SUBROUTINE cluc_crit_gamma(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       
       call cluc_concordances()
       
-      v = real(sConc(1)-sConc(2))/(sConc(1)+sConc(2))
+      v = real(sConc(1)-sConc(2))/real(sConc(1)+sConc(2))
     
 END SUBROUTINE cluc_crit_gamma
 
@@ -254,15 +243,13 @@ END SUBROUTINE cluc_crit_gamma
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_g_plus(x,p,v)" --
+! "SUBROUTINE cluc_crit_g_plus(v)" --
 ! 
 ! Needs sConc (which depends on sWgDist, sBgDist, sPNum).
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_g_plus(x,p,v)
+SUBROUTINE cluc_crit_g_plus(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
         
       call cluc_concordances()
@@ -277,7 +264,7 @@ END SUBROUTINE cluc_crit_g_plus
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_gdi(x,p,c1,c2,v)" --
+! "SUBROUTINE cluc_crit_gdi(p,c1,c2,v)" --
 ! 
 ! Calculate the 15 (5x3) GDI indices: 1 <= c1 <= 5, 1 <= c2 <= 3.
 ! 
@@ -286,9 +273,8 @@ END SUBROUTINE cluc_crit_g_plus
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_gdi(x,p,c1,c2,e,v)
+SUBROUTINE cluc_crit_gdi(p,c1,c2,e,v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       integer, intent(in) :: c1, c2
       integer, intent(out) :: e
@@ -298,6 +284,8 @@ SUBROUTINE cluc_crit_gdi(x,p,c1,c2,e,v)
       integer :: idx, i, j
 
       e = 0
+      num = 0.0
+      den = 0.0
 
       SELECT CASE (c1)
           CASE(1)
@@ -384,7 +372,6 @@ SUBROUTINE cluc_crit_log_det_ratio(x,p,v)
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
-      double precision :: dt, dw
         
       call cluc_det_w(x,p)
       call cluc_det_t(x,p)  
@@ -406,7 +393,7 @@ SUBROUTINE cluc_crit_log_ss_ratio(x,p,v)
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
             
-      call cluc_wgss(x,p)
+      call cluc_wgss()
       call cluc_bgss(x,p)
       v = log(sBgss/sWgss)
     
@@ -416,13 +403,13 @@ END SUBROUTINE cluc_crit_log_ss_ratio
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_mcclain_rao(x,p,v)" --
+! "SUBROUTINE cluc_crit_mcclain_rao(p,v)" --
 ! 
+! Needs sBgPairsSum, sWgPairsSum, sPNum
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_mcclain_rao(x,p,v)
+SUBROUTINE cluc_crit_mcclain_rao(p,v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision :: sbg, swg
@@ -439,13 +426,12 @@ END SUBROUTINE cluc_crit_mcclain_rao
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_point_biserial(x,p,v)" --
+! "SUBROUTINE cluc_crit_point_biserial(p,v)" --
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_point_biserial(x,p,v)
+SUBROUTINE cluc_crit_point_biserial(p,v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision :: sbg, swg
@@ -465,15 +451,14 @@ END SUBROUTINE cluc_crit_point_biserial
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_pbm(x,p,v)" --
+! "SUBROUTINE cluc_crit_pbm(x,v)" --
 ! 
 ! Needs sBgPairsBary and sWgPtsBarySum.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_pbm(x,p,v)
+SUBROUTINE cluc_crit_pbm(x,v)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision :: db, ew, et
       integer :: i
@@ -486,7 +471,7 @@ SUBROUTINE cluc_crit_pbm(x,p,v)
          
       et = 0.0
       DO i=1,sNr
-         et = et + cluc_norm_ln( x(i,:) - sTBar(:), 2.0)
+         et = et + cluc_norm_ln( x(i,:) - sTBar(:), 2)
       END DO
       
       v = ( (et*db)/(sNk*ew) ) **2
@@ -529,18 +514,18 @@ END SUBROUTINE cluc_crit_ratkowsky_lance
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_ray_turi(x,p,v)" --
+! "SUBROUTINE cluc_crit_ray_turi(v)" --
 ! 
-! Needs sBgPairsBary.
+! Needs sWgss, sBgPairsBary.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_ray_turi(x,p,v)
+SUBROUTINE cluc_crit_ray_turi(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
+!       double precision, intent(in), dimension(sNr,sNc) :: x
+!       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
         
-      call cluc_wgss(x,p)
+      call cluc_wgss()
       v = (sWgss / sNr) / minval(sBgPairsBary)**2
       
 END SUBROUTINE cluc_crit_ray_turi
@@ -549,17 +534,16 @@ END SUBROUTINE cluc_crit_ray_turi
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_scott_symons(x,p,v)" --
+! "SUBROUTINE cluc_crit_scott_symons(p,v)" --
 ! 
 ! Needs sWKMat.
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_scott_symons(x,p,v)
+SUBROUTINE cluc_crit_scott_symons(p,v)
       use matrix
       
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: r
@@ -580,14 +564,13 @@ END SUBROUTINE cluc_crit_scott_symons
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_sd_dis(x,p,v)" --
+! "SUBROUTINE cluc_crit_sd_dis(v)" --
 ! 
+! Needs sBgPairsBary
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_sd_dis(x,p,v)
+SUBROUTINE cluc_crit_sd_dis(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision :: di, sib
       integer :: k1, k2, idx
@@ -627,11 +610,9 @@ SUBROUTINE cluc_crit_sd_scat(x,p,v)
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
-      double precision :: sc
-      integer :: k
       
       ! Calc the average scattering among clusters
-      call cluc_scat(x,p,2.0)
+      call cluc_scat(x,p,2)
       v = sScat
 
 END SUBROUTINE cluc_crit_sd_scat
@@ -652,10 +633,10 @@ SUBROUTINE cluc_crit_s_dbw(x,p,v)
       double precision :: ds
       
       ! Calc the average scattering among clusters and the stdev threshold
-      call cluc_scat(x,p,2.0)
+      call cluc_scat(x,p,2)
       
       ! Calculate the inter-cluster density
-      call cluc_bw_density(x,p,2.0,ds)
+      call cluc_bw_density(x,p,2,ds)
       
       v = sScat + ds
     
@@ -665,13 +646,12 @@ END SUBROUTINE cluc_crit_s_dbw
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_silhouette(x,p,v)" --
+! "SUBROUTINE cluc_crit_silhouette(p,v)" --
 ! 
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_silhouette(x,p,v)
+SUBROUTINE cluc_crit_silhouette(p,v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: dk, sk
@@ -713,15 +693,13 @@ END SUBROUTINE cluc_crit_silhouette
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_tau(x,p,v)" --
+! "SUBROUTINE cluc_crit_tau(v)" --
 ! 
 ! Needs sConc (which depends on sWgDist, sBgDist, sPNum).
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_tau(x,p,v)
+SUBROUTINE cluc_crit_tau(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
 
       call cluc_concordances()
@@ -740,17 +718,16 @@ END SUBROUTINE cluc_crit_tau
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_trace_w(x,p,v)" --
+! "SUBROUTINE cluc_crit_trace_w(v)" --
 ! 
+! Needs sWgss.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_trace_w(x,p,v)
+SUBROUTINE cluc_crit_trace_w(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
             
-      call cluc_wgss(x,p)
+      call cluc_wgss()
       v = sWgss
     
 END SUBROUTINE cluc_crit_trace_w
@@ -795,7 +772,7 @@ SUBROUTINE cluc_crit_wemmert_gancarski(x,p,v)
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: r
         
-      call cluc_bary_dist_ratios(x,p,2.0,r)
+      call cluc_bary_dist_ratios(x,p,2,r)
       call cluc_group_counts(p)
 
       r = sKNum - r
@@ -811,18 +788,16 @@ END SUBROUTINE cluc_crit_wemmert_gancarski
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_crit_xie_beni(x,p,v)" --
+! "SUBROUTINE cluc_crit_xie_beni(v)" --
 ! 
-! Needs sBgPairsMin.
+! Needs sWgss, sBgPairsMin.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_crit_xie_beni(x,p,v)
+SUBROUTINE cluc_crit_xie_beni(v)
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
       double precision, intent(out) :: v
         
-      call cluc_wgss(x,p)
+      call cluc_wgss()
       v = (sWgss / sNr) / minval(sBgPairsMin)**2
 
 END SUBROUTINE cluc_crit_xie_beni

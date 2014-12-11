@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critCalc.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2013-06-12 16:12:11
+!              Last modification: 2014-12-04 12:42:04
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -51,53 +51,53 @@ SUBROUTINE cluc_calc_int_criterion(x,p,ci,e,v)
     !! Compute the criterion
     DO i=1,rep
        IF (ci == 0) THEN
-          call cluc_crit_ball_hall(x,p,v)
+          call cluc_crit_ball_hall(p,v)
        ELSE IF (ci == 1) THEN
-          call cluc_crit_banfeld_raftery(x,p,v)
+          call cluc_crit_banfeld_raftery(p,v)
        ELSE IF (ci == 2) THEN
-          call cluc_crit_c_index(x,p,v)
+          call cluc_crit_c_index(v)
        ELSE IF (ci == 3) THEN
           call cluc_crit_calinski_harabasz(x,p,v)
        ELSE IF (ci == 4) THEN
-          call cluc_crit_davies_bouldin(x,p,v)
+          call cluc_crit_davies_bouldin(p,v)
        ELSE IF (ci == 5) THEN
           call cluc_crit_det_ratio(x,p,v)
        ELSE IF (ci == 6) THEN
-          call cluc_crit_dunn(x,p,v)
+          call cluc_crit_dunn(v)
        ELSE IF (ci == 7) THEN
-          call cluc_crit_g_plus(x,p,v)
+          call cluc_crit_g_plus(v)
        ELSE IF (ci == 8) THEN
-          call cluc_crit_gamma(x,p,v)
+          call cluc_crit_gamma(v)
        ELSE IF (ci == 9) THEN
-             call cluc_crit_gdi(x,p,1,1,e,v)
+             call cluc_crit_gdi(p,1,1,e,v)
        ELSE IF (ci == 10) THEN
-             call cluc_crit_gdi(x,p,1,2,e,v)
+             call cluc_crit_gdi(p,1,2,e,v)
        ELSE IF (ci == 11) THEN
-             call cluc_crit_gdi(x,p,1,3,e,v)
+             call cluc_crit_gdi(p,1,3,e,v)
        ELSE IF (ci == 12) THEN
-             call cluc_crit_gdi(x,p,2,1,e,v)
+             call cluc_crit_gdi(p,2,1,e,v)
        ELSE IF (ci == 13) THEN
-             call cluc_crit_gdi(x,p,2,2,e,v)
+             call cluc_crit_gdi(p,2,2,e,v)
        ELSE IF (ci == 14) THEN
-             call cluc_crit_gdi(x,p,2,3,e,v)
+             call cluc_crit_gdi(p,2,3,e,v)
        ELSE IF (ci == 15) THEN
-             call cluc_crit_gdi(x,p,3,1,e,v)
+             call cluc_crit_gdi(p,3,1,e,v)
        ELSE IF (ci == 16) THEN
-             call cluc_crit_gdi(x,p,3,2,e,v)
+             call cluc_crit_gdi(p,3,2,e,v)
        ELSE IF (ci == 17) THEN
-             call cluc_crit_gdi(x,p,3,3,e,v)
+             call cluc_crit_gdi(p,3,3,e,v)
        ELSE IF (ci == 18) THEN
-             call cluc_crit_gdi(x,p,4,1,e,v)
+             call cluc_crit_gdi(p,4,1,e,v)
        ELSE IF (ci == 19) THEN
-             call cluc_crit_gdi(x,p,4,2,e,v)
+             call cluc_crit_gdi(p,4,2,e,v)
        ELSE IF (ci == 20) THEN
-             call cluc_crit_gdi(x,p,4,3,e,v)
+             call cluc_crit_gdi(p,4,3,e,v)
        ELSE IF (ci == 21) THEN
-             call cluc_crit_gdi(x,p,5,1,e,v)
+             call cluc_crit_gdi(p,5,1,e,v)
        ELSE IF (ci == 22) THEN
-             call cluc_crit_gdi(x,p,5,2,e,v)
+             call cluc_crit_gdi(p,5,2,e,v)
        ELSE IF (ci == 23) THEN
-             call cluc_crit_gdi(x,p,5,3,e,v)
+             call cluc_crit_gdi(p,5,3,e,v)
        ELSE IF (ci == 24) THEN
           call cluc_crit_ksq_detw(x,p,v)
        ELSE IF (ci == 25) THEN
@@ -105,35 +105,35 @@ SUBROUTINE cluc_calc_int_criterion(x,p,ci,e,v)
        ELSE IF (ci == 26) THEN
           call cluc_crit_log_ss_ratio(x,p,v)
        ELSE IF (ci == 27) THEN
-          call cluc_crit_mcclain_rao(x,p,v)
+          call cluc_crit_mcclain_rao(p,v)
        ELSE IF (ci == 28) THEN
-          call cluc_crit_pbm(x,p,v)
+          call cluc_crit_pbm(x,v)
        ELSE IF (ci == 29) THEN
-          call cluc_crit_point_biserial(x,p,v)
+          call cluc_crit_point_biserial(p,v)
        ELSE IF (ci == 30) THEN
           call cluc_crit_ratkowsky_lance(x,p,v)
        ELSE IF (ci == 31) THEN
-          call cluc_crit_ray_turi(x,p,v)
+          call cluc_crit_ray_turi(v)
        ELSE IF (ci == 33) THEN
-          call cluc_crit_scott_symons(x,p,v)
+          call cluc_crit_scott_symons(p,v)
        ELSE IF (ci == 34) THEN
-          call cluc_crit_sd_dis(x,p,v)
+          call cluc_crit_sd_dis(v)
        ELSE IF (ci == 35) THEN
           call cluc_crit_sd_scat(x,p,v)
        ELSE IF (ci == 32) THEN
           call cluc_crit_s_dbw(x,p,v)
        ELSE IF (ci == 36) THEN
-          call cluc_crit_silhouette(x,p,v)
+          call cluc_crit_silhouette(p,v)
        ELSE IF (ci == 37) THEN
-          call cluc_crit_tau(x,p,v)
+          call cluc_crit_tau(v)
        ELSE IF (ci == 38) THEN
-          call cluc_crit_trace_w(x,p,v)
+          call cluc_crit_trace_w(v)
        ELSE IF (ci == 39) THEN
           call cluc_crit_trace_wib(x,p,v)
        ELSE IF (ci == 40) THEN
           call cluc_crit_wemmert_gancarski(x,p,v)
        ELSE IF (ci == 41) THEN
-          call cluc_crit_xie_beni(x,p,v)
+          call cluc_crit_xie_beni(v)
        ELSE
           e = 1
        END IF
@@ -163,7 +163,6 @@ SUBROUTINE cluc_int_set_flags(ci)
 ! use logFile
     IMPLICIT NONE
     integer, intent(in) :: ci
-    integer :: i, c1, c2
      
     IF (ci == 0) THEN
        sFlg = ibset(sFlg, fWgPtsBarySumPow)
@@ -286,12 +285,12 @@ SUBROUTINE cluc_int_precalc(x,p,e)
     IF (e /= 0) THEN
        e = 3
     ELSE
-       call cluc_inter_bary_distances(x,p,2.0,e)
+       call cluc_inter_bary_distances(x,p,2,e)
        IF (e == 0) THEN
-          call cluc_points_bary_distances(x,p,2.0,e)
+          call cluc_points_bary_distances(x,p,2,e)
        END IF
        IF (e == 0) THEN
-          call cluc_pairwise_distances(x,p,2.0,e)
+          call cluc_pairwise_distances(x,p,2,e)
        END IF
        IF (e == 0) THEN
           call cluc_group_wg_matrix(x,p)

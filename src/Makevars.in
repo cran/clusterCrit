@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "Makevars.in"
 #                        Created: 2012-05-10 18:55:47
-#              Last modification: 2013-06-12 16:49:14
+#              Last modification: 2014-09-13 15:37:04
 # Author: Bernard Desgraupes <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
 # ===========================================================================
@@ -40,9 +40,15 @@ CLUS_VIGNETTE_NAME = clusterCrit
 
 all: $(SHLIB)
 
+$(SHLIB): $(OBJECTS)
 
-${CLUS_F_OBJ}: ${CLUS_F_SRC}
-	${FC} $(FCPICFLAGS) $(FCFLAGS) -c ${CLUS_F_SRC}
+# Setup dependencies for parallel make
+## critCalc.o: critUtils.o indices.o timer.o logFile.o
+critCalc.o: critUtils.o indices.o 
+critUtils.o: norms.o matrix.o
+indices.o: critUtils.o  matrix.o
+## timer.o: logFile.o
+
 
 
 .PHONY: clean vignette

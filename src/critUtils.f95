@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critUtils.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2013-04-20 10:54:25
+!              Last modification: 2014-12-04 12:41:36
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -74,17 +74,17 @@ MODULE critUtils
       !! tested with the masks below.
       INTEGER, SAVE :: sFlg
       !! Masks
-       INTEGER, SAVE ::	fWgPtsBarySum		= 1, &
-						fWgPtsBarySumPow	= 2, &
-                        fWgPairsSum			= 3, &
-                        fWgPairsMax			= 4, &
-                        fBgPairsMax			= 5, &
-                        fBgPairsMin			= 6, &
-                        fBgPairsSum			= 7, &
-                        fBgPairsBary		= 8, &
-                        fPairsDist			= 9, &
-                        fWgKMat				= 10, &
-                        fPtClDist			= 11
+       INTEGER, SAVE :: fWgPtsBarySum       = 1, &
+                        fWgPtsBarySumPow    = 2, &
+                        fWgPairsSum         = 3, &
+                        fWgPairsMax         = 4, &
+                        fBgPairsMax         = 5, &
+                        fBgPairsMin         = 6, &
+                        fBgPairsSum         = 7, &
+                        fBgPairsBary        = 8, &
+                        fPairsDist          = 9, &
+                        fWgKMat             = 10, &
+                        fPtClDist           = 11
 
       !! Pointers
       DOUBLE PRECISION, POINTER :: pWgss
@@ -194,7 +194,7 @@ SUBROUTINE cluc_alloc_arrays(p,e)
       integer, intent(in), dimension(sNr) :: p
       integer, intent(out) :: e
       double precision :: nrm
-      integer :: i, j, pk
+      integer :: pk
       
       !! sWgPtsBarySum K-vector
       IF ( btest(sFlg, fWgPtsBarySum) ) THEN
@@ -639,7 +639,7 @@ END SUBROUTINE cluc_sub_wg
 
 ! ---------------------------------------------------------------------------
 ! 
-! "SUBROUTINE cluc_wgss(x,p)" --
+! "SUBROUTINE cluc_wgss()" --
 ! 
 ! x		data matrix
 ! p		partition vector
@@ -651,11 +651,10 @@ END SUBROUTINE cluc_sub_wg
 ! distances between the points of the cluster and their barycenter.
 ! ---------------------------------------------------------------------------
 
-SUBROUTINE cluc_wgss(x,p)
+SUBROUTINE cluc_wgss()
       IMPLICIT NONE
-      double precision, intent(in), dimension(sNr,sNc) :: x
-      integer, intent(in), dimension(sNr) :: p
-      integer :: i, pn
+!       double precision, intent(in), dimension(sNr,sNc) :: x
+!       integer, intent(in), dimension(sNr) :: p
 
       IF (.not.associated(pWgss)) THEN
          pWgss => sWgss
@@ -685,7 +684,6 @@ SUBROUTINE cluc_bg_matrix(x,p)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      integer, dimension(sNk) :: nk
       integer :: i, j
       
       IF (.not.allocated(sBMat)) THEN
@@ -703,7 +701,8 @@ SUBROUTINE cluc_bg_matrix(x,p)
          
          DO i=1,sNC
             DO j=1,i
-               ! Calc the dot product of (G_i - G) and (G_j - G) weighted by the nk
+               ! Calc the dot product of (G_i - G) and (G_j - G) weighted by the
+               ! number sKNum of elements in each cluster
                sBMat(i,j) = dot_product(sKNum(:) * (sKBar(:,i) - sTBar(i)), sKBar(:,j) - sTBar(j))
                IF (i.ne.j) THEN
                   sBMat(j,i) = sBMat(i,j)
@@ -868,7 +867,7 @@ SUBROUTINE cluc_pairs_sum_minmax(min, max, e)
       DOUBLE PRECISION, intent(out) :: min, max
       integer, intent(out) :: e
       DOUBLE PRECISION, dimension(:), allocatable :: tmp
-      integer :: nb, nw, nt
+      integer :: nw, nt
 
       nw = sPNum(1)
       nt = sPNum(0)
@@ -913,7 +912,7 @@ SUBROUTINE cluc_cross_counts(p1,p2,n)
       IMPLICIT NONE
       integer, intent(in) :: n
       integer, intent(in), dimension(n) :: p1, p2
-      integer :: i, j, pn
+      integer :: i, j
      
       IF (.not.allocated(sNTb)) THEN
          allocate( sNTb(2,2) )
@@ -963,12 +962,13 @@ SUBROUTINE cluc_points_bary_distances(x,p,n,e)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       integer, intent(out) :: e
       integer :: i, pn
       logical :: hSum, hSumPow
       double precision :: nrm
 
+      e = 0
       hSum = btest(sFlg, fWgPtsBarySum)
       hSumPow = btest(sFlg, fWgPtsBarySumPow)
 
@@ -1018,9 +1018,9 @@ SUBROUTINE cluc_pairwise_distances(x,p,n,e)
     IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       integer, intent(out) :: e
-      integer :: i, j, k, idx, pn, wix, bix, p1, p2
+      integer :: i, j, idx, pn, wix, bix, p1, p2
       logical :: hWgSum, hWgMax, &
                  hBgMax, hBgMin, hBgSum, &
                  hDists, hPtCls
@@ -1115,12 +1115,11 @@ SUBROUTINE cluc_inter_bary_distances(x,p,n,e)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       integer, intent(out) :: e
       integer :: i, j
 
       e = 0
-      
       IF ( btest(sFlg, fBgPairsBary) ) THEN
          ! Ensure the cluster barycenters
          call cluc_group_barycenters(x,p)
@@ -1152,7 +1151,7 @@ SUBROUTINE cluc_scat(x,p,n)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       double precision :: sc
       integer :: k
       
@@ -1196,10 +1195,9 @@ SUBROUTINE cluc_bw_density(x,p,n,d)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       double precision, intent(out) :: d
       double precision, dimension(sNc) :: h
-      double precision :: dr
       integer :: i, k1, k2, c1, c2, c3
       
       ! Ensure the group barycenters
@@ -1253,7 +1251,7 @@ SUBROUTINE cluc_bary_dist_ratios(x,p,n,r)
       IMPLICIT NONE
       double precision, intent(in), dimension(sNr,sNc) :: x
       integer, intent(in), dimension(sNr) :: p
-      real, intent(in) :: n
+      integer, intent(in) :: n
       double precision, intent(out), dimension(sNk) :: r
       double precision, dimension(sNk) :: dpb
       double precision :: rd
@@ -1263,6 +1261,7 @@ SUBROUTINE cluc_bary_dist_ratios(x,p,n,r)
       call cluc_group_barycenters(x,p)
       
       r = 0.0
+      rd = 0.0
       DO i=1,sNr
          pn = p(i)
          DO k=1,sNk

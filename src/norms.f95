@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "norms.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2010-04-24 11:27:24
+!              Last modification: 2014-12-04 12:42:10
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -57,7 +57,7 @@ MODULE norms
    FUNCTION cluc_norm_ln(x,n,s)
        IMPLICIT NONE
        double precision, intent(in), dimension(:) :: x
-       real, intent(in) :: n
+       integer, intent(in) :: n
        logical, intent(in), optional :: s
        double precision :: cluc_norm_ln, v
        integer :: ln
@@ -66,9 +66,9 @@ MODULE norms
        IF (present(s)) THEN; sc = s; ELSE; sc = .true.; END IF
        
        ln = size(x)
-       if ( n == 1.0 ) then
+       if ( n == 1 ) then
            cluc_norm_ln = sum ( abs (x(1:ln)) )
-       else if ( n == 2.0 ) then
+       else if ( n == 2 ) then
             v =  sum ( x(1:ln)**2 ) 
            IF (sc) THEN
               cluc_norm_ln = sqrt(v)
@@ -105,12 +105,12 @@ MODULE norms
    FUNCTION cluc_norm_scale(v,n)
        IMPLICIT NONE
        double precision, intent(in) :: v
-       real, intent(in) :: n
+       integer, intent(in) :: n
        double precision :: cluc_norm_scale
         
-       if ( n == 2.0 ) then
+       if ( n == 2 ) then
           cluc_norm_scale = sqrt(v)
-       else if ( n == 1.0 .or. n == huge(n) ) then
+       else if ( n == 1 .or. n == huge(n) ) then
            cluc_norm_scale = v
        else 
            cluc_norm_scale = v**( 1.0/n )
@@ -133,15 +133,24 @@ MODULE norms
      
 
 
+   ! ---------------------------------------------------------------------------
+   ! 
+   ! "FUNCTION cluc_dist_binary(x,y)" --
+   ! 
+   ! x,y	in		integer vectors (regarded as binary bits)
+   ! 
+   ! See function dist() with method="binary" in R.
+   !
+   ! ---------------------------------------------------------------------------
    FUNCTION cluc_dist_binary(x,y)
        IMPLICIT NONE
-       double precision, intent(in), dimension(:) :: x, y
+       integer, intent(in), dimension(:) :: x, y
        double precision :: cluc_dist_binary
        integer :: num, den, ln
     
        ln = size(x)
-       num =  count((x(1:ln) /= 0.0) .and. (y(1:ln) /= 0.0))
-       den =  count((x(1:ln) /= 0.0) .or. (y(1:ln) /= 0.0))
+       num =  count((x(1:ln) /= 0) .and. (y(1:ln) /= 0))
+       den =  count((x(1:ln) /= 0) .or. (y(1:ln) /= 0))
        cluc_dist_binary = real(num)/real(den)
 
    END FUNCTION cluc_dist_binary
