@@ -12,12 +12,6 @@
 #     make test-bestCriterion
 
 
-TEST_DIR=$(shell pwd)
-INST_DIR=$(shell dirname ${TEST_DIR})
-PKG_DIR=$(shell dirname ${INST_DIR})
-TOP_DIR=$(shell dirname ${PKG_DIR})
-PKG_DIRNAME=$(shell basename ${PKG_DIR})
-
 # $(info PKG_DIR: ${PKG_DIR})
 # $(info TOP_DIR: ${TOP_DIR})
 # $(info PKG_DIRNAME: ${PKG_DIRNAME})
@@ -42,13 +36,7 @@ crit-%:
 	@echo "source(\"${TEST_DIR}/${SINGLE_CRIT_NAME}\")" | R --vanilla --slave --args $*
 
 
-all: install tests
-
-
-install:
-	cd ${TOP_DIR}; \
-	R CMD INSTALL --clean ${PKG_DIRNAME} && \
-	cd ${TEST_DIR}
+all: tests
 
 
 help:
