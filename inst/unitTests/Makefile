@@ -19,7 +19,7 @@
 SINGLE_CRIT_NAME=runOneCrit.R
 SINGLE_TEST_NAME=runOneTest.R
 ALL_CRIT_TESTNAME=runAllTests.R
-
+TEST_DIR=.
 
 tests:
 	@echo "Running all tests"

@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "indices.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2014-12-04 12:41:52
+!              Last modification: 2015-07-17 21:15:05
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -1013,6 +1013,26 @@ SUBROUTINE cluc_crit_recall(p1,p2,v)
 END SUBROUTINE cluc_crit_recall
 
 
+! ---------------------------------------------------------------------------
+! 
+! "SUBROUTINE cluc_crit_rogers_tanimoto(p1,p2,v)" --
+! 
+! ---------------------------------------------------------------------------
+
+SUBROUTINE cluc_crit_rogers_tanimoto(p1,p2,v)
+      IMPLICIT NONE
+      integer, intent(in), dimension(sNr) :: p1, p2
+      double precision, intent(out) :: v
+      double precision :: num, den
+        
+      call cluc_cross_counts(p1,p2,sNr)
+      num = real(sNTb(1,1) + sNTb(2,2))/2
+      den = num + sNTb(1,2) + sNTb(2,1)
+      v = num/den
+    
+END SUBROUTINE cluc_crit_rogers_tanimoto
+
+
 
 ! ---------------------------------------------------------------------------
 ! 
@@ -1031,26 +1051,6 @@ SUBROUTINE cluc_crit_russel_rao(p1,p2,v)
 END SUBROUTINE cluc_crit_russel_rao
 
 
-! ---------------------------------------------------------------------------
-! 
-! "SUBROUTINE cluc_crit_rogers_tanimoto(p1,p2,v)" --
-! 
-! ---------------------------------------------------------------------------
-
-SUBROUTINE cluc_crit_rogers_tanimoto(p1,p2,v)
-      IMPLICIT NONE
-      integer, intent(in), dimension(sNr) :: p1, p2
-      double precision, intent(out) :: v
-      double precision :: num, den
-        
-      call cluc_cross_counts(p1,p2,sNr)
-      num = real(sNTb(1,1) + sNTb(2,2))/2
-      den = num + sNTb(1,2) + sNTb(1,2)
-      v = num/den
-    
-END SUBROUTINE cluc_crit_rogers_tanimoto
-
-
 
 ! ---------------------------------------------------------------------------
 ! 
@@ -1066,7 +1066,7 @@ SUBROUTINE cluc_crit_sokal_sneath1(p1,p2,v)
         
       call cluc_cross_counts(p1,p2,sNr)
       num = real(sNTb(1,1))/2
-      den = num + sNTb(1,2) + sNTb(1,2)
+      den = num + sNTb(1,2) + sNTb(2,1)
       v = num/den
     
 END SUBROUTINE cluc_crit_sokal_sneath1
@@ -1087,7 +1087,7 @@ SUBROUTINE cluc_crit_sokal_sneath2(p1,p2,v)
         
       call cluc_cross_counts(p1,p2,sNr)
       num = (sNTb(1,1) + sNTb(2,2))*2
-      den = num + sNTb(1,2) + sNTb(1,2)
+      den = num + sNTb(1,2) + sNTb(2,1)
       v = real(num)/den
     
 END SUBROUTINE cluc_crit_sokal_sneath2

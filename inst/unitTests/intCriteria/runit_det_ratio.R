@@ -1,9 +1,9 @@
 # ===========================================================================
 # File: "runit_det_ratio.R"
 #                        Created: 2012-11-13 11:28:57
-#              Last modification: 2012-11-13 11:28:57
+#              Last modification: 2015-08-31 10:09:41
 # Author: Bernard Desgraupes
-# e-mail: <>
+# e-mail: <bernard.desgraupes@u-paris10.fr>
 # Unit test file for the R package clusterCrit.
 # ===========================================================================
 
@@ -14,8 +14,9 @@ test.det_ratio <- function() {
 	load(file=dataPath, envir=.GlobalEnv)
 	idx <- intCriteria(traj_400_4, part_400_4[[4]], c("Det_Ratio"))
 	cat(paste("\nFound idx =",idx))
-	cat(paste("\nShould be =",964.208175287163,"\n"))
-	checkEqualsNumeric(idx[[1]],964.208175287163)
+	val <- 964.208175287163
+	cat(paste("\nShould be =",val,"\n"))
+	checkEqualsNumeric(idx[[1]],val)
 }
 
 
