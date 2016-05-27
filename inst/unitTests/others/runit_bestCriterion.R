@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "runit_bestCriterion.R"
 #                        Created: 2012-11-06 20:02:30
-#              Last modification: 2012-11-13 11:46:11
+#              Last modification: 2016-05-27 11:04:33
 # Author: Bernard Desgraupes
 # e-mail: <bdesgraupes@users.sourceforge.net>
 # Unit test file for the R package clusterCrit.
@@ -45,7 +45,7 @@ test.bestCriterion <- function() {
 	cat("\nBest criterion yields (expected 4):\n")
 	cat(result,"\n")
 	
-	expected <- c(3,7,4,4,5,4,4,2,7,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,4,4,4,5,4,2,4,3,7,7,3,4,4,7,4,3,4,4)
+	expected <- c(3,7,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,4,4,4,5,4,2,4,3,7,7,3,4,4,4,4,3,4,4)
 	checkEqualsNumeric(result,expected)
 }
 

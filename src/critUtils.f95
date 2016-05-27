@@ -280,7 +280,7 @@ SUBROUTINE cluc_alloc_arrays(p,e)
       END IF
              
       !! sWgDist, sBgDist: vectors of size sPNum(1) (=N_W) and sPNum(2) (=N_B)
-      !! respectively
+      !! respectively (see vignette for definition of N_W and N_B)
       IF ( btest(sFlg, fPairsDist) ) THEN
          call cluc_pair_counts(p) 
          
@@ -361,7 +361,8 @@ END SUBROUTINE  cluc_group_counts
 ! p		partition vector
 ! 
 ! Return in array 'sPNum(0:2)' the total number of pairs of points, the number
-! of within-group pairs and the number of between-group pairs.
+! of within-group pairs and the number of between-group pairs. See the formulas
+! in the vignette.
 ! 
 ! ---------------------------------------------------------------------------
 
@@ -375,7 +376,7 @@ SUBROUTINE cluc_pair_counts(p)
  
          call cluc_group_counts(p)
          sPNum(0) = sNr*(sNr-1)/2
-         sPNum(1) = (sum(sKNum**2) - sum(sKNum))/2
+         sPNum(1) = (sum(sKNum**2) - sNr)/2
          sPNum(2) = sPNum(0) - sPNum(1)
          
       END IF
@@ -820,6 +821,10 @@ END SUBROUTINE  cluc_det_t
 ! between pairs of between-group and within-group distances. They are
 ! respectively the s+ and s- counts used in the Gamma, G+ and Tau indices.
 ! 
+! See in the vignette the formulas used to calculate s+ and s- :
+!     s^{+} = \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 1_{d_{uv} < d_{rs}}
+!     s^{-} = \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 1_{d_{uv} > d_{rs}}
+! 
 ! The sBgDist and sWgDist arrays must have been calculated and sorted already.
 ! The sPNum array is also available.
 ! ---------------------------------------------------------------------------
@@ -838,15 +843,15 @@ SUBROUTINE cluc_concordances()
          DO ib=1,sPNum(2)
             db = sBgDist(ib)
             IF (ip>1) THEN
-               sConc(2) = sConc(2) + ip - 1
+               sConc(1) = sConc(1) + ip - 1
             END IF
             DO iw=ip,sPNum(1)
                IF (db < sWgDist(iw)) THEN
-                  sConc(1) = sConc(1) + sPNum(1) - iw + 1
+                  sConc(2) = sConc(2) + (sPNum(1) - iw + 1)
                   ip = iw
                   exit 
                ELSE
-                  sConc(2) = sConc(2) + 1
+                  sConc(1) = sConc(1) + 1
                END IF
             END DO 
          END DO 
@@ -1065,8 +1070,6 @@ SUBROUTINE cluc_pairwise_distances(x,p,n,e)
                p2 = max(p(i),p(j))
                idx = p1 + ((p2-1)*(p2-2))/2
                IF (hBgMin) THEN
-                   IF (idx > (sNk*(sNk-1))/2) THEN
-               END IF
                   sBgPairsMin(idx) = min( sBgPairsMin(idx), nrm)
                END IF
                IF (hBgMax) THEN
@@ -1089,6 +1092,7 @@ SUBROUTINE cluc_pairwise_distances(x,p,n,e)
       END DO
       
       IF (hDists) THEN
+          ! Sort the arrays of pair distances
          call cluc_heap_sort(sWgDist,sPNum(1),e)
          call cluc_heap_sort(sBgDist,sPNum(2),e)         
       END IF
@@ -1301,9 +1305,7 @@ SUBROUTINE cluc_heap_sort(arr,n,e)
    DOUBLE PRECISION :: tmp
 
    e = 0
-   IF ( n <= 0 ) THEN
-      e = 1
-   ELSE IF ( n > 1 ) THEN
+   IF ( n > 0 ) THEN
       hp  = n / 2 + 1
       rp = n
 loop: DO WHILE (rp > 1)

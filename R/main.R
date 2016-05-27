@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "main.R"
 #                        Created: 2010-04-26 08:23:20
-#              Last modification: 2013-06-12 16:18:17
+#              Last modification: 2016-05-26 17:41:35
 # Author: Bernard Desgraupes
 # e-mail: <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
@@ -19,7 +19,13 @@
  ##
 intCriteria <- function(traj, part, crit)
 {
-	ans <- .Call("cluc_calculateInternalCriteria", traj, part, buildCriteriaList(crit, TRUE), PACKAGE="clusterCrit")
+	if (!is.matrix(traj)) {
+		stop("argument 'traj' must be a matrix")
+	}	
+	if (!( is.vector(part) && is.integer(part) )) {
+		stop("argument 'part' must be an integer vector")
+	}	
+	ans <- .Call("cluc_calculateInternalCriteria", traj, clust_canonify(part), buildCriteriaList(crit, TRUE), PACKAGE="clusterCrit")
     return(ans)
 }
 
@@ -35,7 +41,16 @@ intCriteria <- function(traj, part, crit)
  ##
 extCriteria <- function(part1, part2, crit)
 {
-	ans <- .Call("cluc_calculateExternalCriteria", part1, part2, buildCriteriaList(crit, FALSE), PACKAGE="clusterCrit")
+	if (!( is.vector(part1) && is.integer(part1) )) {
+		stop("argument 'part1' must be an integer vector")
+	}	
+	if (!( is.vector(part2) && is.integer(part2) )) {
+		stop("argument 'part2' must be an integer vector")
+	}	
+	if (length(part1) != length(part1)) {
+		stop("'part1' and 'part2' must be the same length")
+	}
+	ans <- .Call("cluc_calculateExternalCriteria", clust_canonify(part1), clust_canonify(part2), buildCriteriaList(crit, FALSE), PACKAGE="clusterCrit")
     return(ans)
 }
 
@@ -49,7 +64,8 @@ extCriteria <- function(part1, part2, crit)
  # matrix) between two partitions.
  # 
  # The function returns a 2x2 matrix with the number of pairs belonging or
- # not belonging to the same cluster wrt partition P1 or P2.
+ # not belonging to the same cluster wrt partition P1 or P2. The vectors P1
+ # and P2 must have the same length N. 
  #
  #          | 	1	|	2	|
  #       _____________________
@@ -57,10 +73,18 @@ extCriteria <- function(part1, part2, crit)
  #        2	|	Nny	|	Nnn	|
  #       _____________________
  # 
+ # There are N(N-1)/2 pairs, so Nyy + Nyn + Nny + Nnn = N(N-1)/2.
+ # 
  # ------------------------------------------------------------------------
  ##
 concordance <- function(part1, part2)
 {
+	if (!( is.vector(part1) && is.integer(part1) )) {
+		stop("argument 'part1' must be an integer vector")
+	}	
+	if (!( is.vector(part2) && is.integer(part2) )) {
+		stop("argument 'part2' must be an integer vector")
+	}	
 	ans <- .Call("cluc_calculateConcordances", part1, part2, PACKAGE="clusterCrit")
     return(ans)
 }
@@ -246,3 +270,17 @@ bestCriterion <- function(x, crit) {
     return(best[1])
 }
 
+
+## 
+ # ------------------------------------------------------------------------
+ # 
+ # "clust_canonify" --
+ # 
+ # Make sure the partition vector contains all integer values ranging
+ # sequentially from 1.
+ # 
+ # ------------------------------------------------------------------------
+ ##
+clust_canonify <- function(part) {
+	return(match(part,sort(unique(part))))
+}

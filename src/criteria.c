@@ -2,7 +2,7 @@
  * ===========================================================================
  * File: "criteria.c"
  *                        Created: 2010-04-26 08:31:04
- *              Last modification: 2013-06-12 15:55:02
+ *              Last modification: 2016-05-26 17:41:41
  * Author: Bernard Desgraupes
  * e-mail: <bernard.desgraupes@u-paris10.fr>
  * This is part of the R package 'clusterCrit'.
@@ -21,6 +21,9 @@
 
 #define CRIT_MAX_LENGTH 32
 
+	// DO NOT MODIFY THE ORDER OF THIS STRINGS, cluc_calc_int_criterion AND
+	// cluc_int_set_flags RELY ON IT.
+	// FUTURE NEW INDICES SHOULD BE APPENDED.
 	static const char * sIntCritNames[] = {
 		"ball_hall",        	"banfeld_raftery",	"c_index",        	"calinski_harabasz",
 		"davies_bouldin",   	"det_ratio",      	"dunn",           	"g_plus",
@@ -66,6 +69,18 @@
 
 
 
+/* 
+ * ------------------------------------------------------------------------
+ * 
+ * "SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)" --
+ * 
+ * The calling R proc has already checked that 
+ *    1- the 'traj' argument is a matrix
+ *    2- the 'part' argument is an integer vector with values ranging
+ *       sequentially from 1
+ * 
+ * ------------------------------------------------------------------------
+ */
 SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 {
 	int				i, idx, err = 0;
@@ -81,14 +96,6 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 	PROTECT(inCrit);
 	
 	/* Check the arguments */
-	if (!isMatrix(inTraj)) {
-		UNPROTECT(3);
-		Rf_error("arg 'traj' must be a numeric matrix");
-	}
-	if (!( isVector(inPart) && isInteger(inPart) )) {
-		UNPROTECT(3);
-		Rf_error("argument 'part' must be an integer vector");
-	}	
 	if (TYPEOF(inCrit) != STRSXP) {
 		UNPROTECT(3);
 		Rf_error("argument 'crit' must be a character vector");
@@ -161,6 +168,17 @@ SEXP cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit)
 }
 
 
+/* 
+ * ------------------------------------------------------------------------
+ * 
+ * "SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)" --
+ * 
+ * The calling R proc has already checked that the 'part1' and 'part2'
+ * arguments are integer vectors with values ranging sequentially from 1
+ * and that they have the same length.
+ * 
+ * ------------------------------------------------------------------------
+ */
 SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 {
 	int				i, idx, err = 0;
@@ -175,22 +193,10 @@ SEXP cluc_calculateExternalCriteria(SEXP inPart1, SEXP inPart2, SEXP inCrit)
 	PROTECT(inCrit);
 	
 	/* Check the arguments */
-	if (!( isVector(inPart1) && isInteger(inPart1) )) {
-		UNPROTECT(3);
-		Rf_error("argument 'part1' must be an integer vector");
-	}	
-	if (!( isVector(inPart2) && isInteger(inPart2) )) {
-		UNPROTECT(3);
-		Rf_error("argument 'part2' must be an integer vector");
-	}	
 	if (TYPEOF(inCrit) != STRSXP) {
 		UNPROTECT(3);
 		Rf_error("argument 'crit' must be a character vector");
 	}   
-	if (length(inPart1) != length(inPart2)) {
-		UNPROTECT(3);
-		Rf_error("'part1' and 'part2' must have the same length");
-	}	
 		
 	/* Retrieve the size of the objects */
 	nbElem = length(inPart1);

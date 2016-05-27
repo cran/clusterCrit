@@ -1,7 +1,7 @@
 // ===========================================================================
 // File: "criteria.h"
 //                        Created: 2010-04-26 08:31:04
-//              Last modification: 2013-06-12 15:54:59
+//              Last modification: 2016-05-26 19:00:45
 // Author: Bernard Desgraupes
 // e-mail: <bernard.desgraupes@u-paris10.fr>
 // This is part of the R package 'clusterCrit'.

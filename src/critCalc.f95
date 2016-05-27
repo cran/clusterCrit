@@ -428,6 +428,11 @@ SUBROUTINE cluc_calc_ext_start (nr,nk1,nk2)
 END SUBROUTINE  cluc_calc_ext_start
 
 
+! ---------------------------------------------------------------------------
+! 
+! "SUBROUTINE cluc_calc_ext_end()" --
+! 
+! ---------------------------------------------------------------------------
 
 SUBROUTINE cluc_calc_ext_end ()
     use critUtils
@@ -441,8 +446,10 @@ END SUBROUTINE  cluc_calc_ext_end
 ! "SUBROUTINE cluc_count_clusters(p,n,r)" --
 ! 
 !       p	in		partition vector
-!       n	in		length of vector
 !       r	out		number of clusters
+! 
+! It is guaranteed (after renumbering in main.R) that p contains all the integer
+! values in some interval 1:r, so that the number of values is precisely r.
 ! 
 ! ---------------------------------------------------------------------------
 

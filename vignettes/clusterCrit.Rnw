@@ -610,12 +610,14 @@ of clustering, of the index $\Gamma$ of correlation between two
 vectors of data $A$ and $B$ with the same size.
 
 Generally, for two indices $i$ and $j$ such that $a_{i} <
-a_{j}$, one says that the two vectors are concordant if $b_{i} <
+a_{j}$, one says that the two vectors are \emph{concordant} if $b_{i} <
 b_{j}$, in other words, if the values classify in the same order
 in both vectors. One calculates the number $s^{+}$ of concordant pairs
-$\{i,j\}$ and the number $s^{-}$ of discordant pairs.
+$\{i,j\}$ and the number $s^{-}$ of discordant pairs. Note that the 
+inequalities are strict, meaning that ties are dropped.
 
-The $\Gamma$ index is classically defined like this:
+In this context, the $\Gamma$ index is classically defined like this 
+(see \cite{goodman-kruskal-54}):
 \begin{equation}
     \boxed{\mathcal{C}=\Gamma=\frac{s^{+}-s^{-}}{s^{+}+s^{-}}}
     \label{eq-crit-baker-hubert}
@@ -626,35 +628,36 @@ In the context of a partition, the first vector $A$ is chosen to be
 the set of distances $d_{ij}$ between pairs of points
 $\{M_{i},M_{j}\}$ (with $i<j$). The second vector $B$ is a binary
 vector: in this vector, the coordinate corresponding to a pair
-$\{M_{i},M_{j}\}$ has value 1 if the two points lie in the same
-cluster and 0 otherwise. These two vectors have length
+$\{M_{i},M_{j}\}$ has value 0 if the two points lie in the same
+cluster and 1 otherwise. These two vectors have length
 $N_{T}=N(N-1)/2$.
 
 The number $s^{+}$ represents the number of times a distance between
-two points which do not belong to the same cluster (that is to say a
-pair for which the value of vector $B$ is 0) is strictly smaller than
-the distance between two points belonging to the same cluster (that is
+two points which belong to the same cluster (that is to say a pair for
+which the value of vector $B$ is 0) is strictly smaller than the
+distance between two points not belonging to the same cluster (that is
 to say a pair for which the value of vector $B$ is 1). The number
 $s^{-}$ represents the number of times the opposite situation occurs,
-that is to say that a distance between two points which do not belong
-to the same cluster (value 0 in $B$) is strictly greater than a
-distance between two points lying in the same cluster (value 1 in
-$B$). The cases where there is equality (ties or \emph{ex-aequos}) are
-not taken into account. There are $N_{B}$ between-cluster distances
-and, for each of them, one compares with the $N_{W}$ within-cluster
-distances: one finally performs $N_{B}\times N_{W}$ comparisons.
+that is to say that a distance between two points lying in the same
+cluster (value 0 in $B$) is strictly greater than a distance between
+two points not belonging to the same cluster (value 1 in $B$). The
+cases where there is equality (ties or \emph{ex-aequos}) are not taken
+into account. As defined in section~\ref{subsubsec-paires-points},
+there are $N_{B}$ between-cluster distances and, for each of them, one
+compares with the $N_{W}$ within-cluster distances: one finally
+performs $N_{B}\times N_{W}$ comparisons.
 
 One can write the numbers $s^{+}$ and $s^{-}$ in the following form:
 \begin{eqnarray}
     s^{+} & = & \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 
-    \mathbf{1}_{\{d_{rs} < d_{uv}\}} \\
+    \mathbf{1}_{\{d_{uv} < d_{rs}\}} \\
     s^{-} & = & \sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} 
-    \mathbf{1}_{\{d_{rs} > d_{uv}\}}
+    \mathbf{1}_{\{d_{uv} > d_{rs}\}}
 \end{eqnarray}
 
 Their difference is:
 \begin{equation}
-s^{+}-s^{-}=\sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} \sgn(d_{uv} - d_{rs})
+s^{+}-s^{-}=\sum_{(r,s)\in I_{B}}\sum_{(u,v)\in I_{W}} \sgn(d_{rs} - d_{uv})
 \end{equation}
 % s^{+}-s^{-}=\sum_{i<j}  sgn(a_{i} - a_{j})sgn(b_{i} - b_{j})
 
@@ -729,8 +732,8 @@ like this:
     \boxed{\mathcal{C}=\frac{s^{-}}{N_{T}(N_{T}-1)/2}=\frac{2s^{-}}{N_{T}(N_{T}-1)}}
     \label{eq-crit-G-plus}
 \end{equation}
-
-
+This is the proportion of discordant pairs among all the pairs of 
+distinct points.
 
 
 \subsubsection{The Ksq\_DetW index}
@@ -1867,6 +1870,13 @@ $$
     ny & nn
 \end{pmatrix}
 $$
+These are the number of pairs classified as belonging or not belonging
+to the same cluster with respect to both partitions. Since there are 
+$N(N-1)/2$ pairs of distinct points, one has:
+$$
+yy + yn + ny + nn=N(N-1)/2
+$$
+
 
 \par\medskip The \emph{getCriteriaNames} function is a convenience function which 
 returns the names of the currently implemented indices. Its syntax is:
