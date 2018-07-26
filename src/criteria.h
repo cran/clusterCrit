@@ -1,7 +1,7 @@
 // ===========================================================================
 // File: "criteria.h"
 //                        Created: 2010-04-26 08:31:04
-//              Last modification: 2016-05-26 19:00:45
+//              Last modification: 2018-07-26 15:26:37
 // Author: Bernard Desgraupes
 // e-mail: <bernard.desgraupes@u-paris10.fr>
 // This is part of the R package 'clusterCrit'.
@@ -12,10 +12,18 @@
 #define CRITERIA_H
 #pragma once
 
+#include <R.h>
+#include <Rdefines.h>
+#include <Rmath.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+
 
 
 // Prototypes
 // ----------
+
+void	R_init_clusterCrit(DllInfo * info);
 
 SEXP	cluc_calculateInternalCriteria(SEXP inTraj, SEXP inPart, SEXP inCrit);
 

@@ -2,7 +2,7 @@
  * ===========================================================================
  * File: "criteria.c"
  *                        Created: 2010-04-26 08:31:04
- *              Last modification: 2016-05-26 17:41:41
+ *              Last modification: 2018-07-26 15:17:52
  * Author: Bernard Desgraupes
  * e-mail: <bernard.desgraupes@u-paris10.fr>
  * This is part of the R package 'clusterCrit'.
@@ -67,6 +67,33 @@
 		EXTCRIT_SOKAL_SNEATH1,   	EXTCRIT_SOKAL_SNEATH2  
 	};
 
+
+static const R_CallMethodDef CallEntries[] = {
+	{"cluc_calculateInternalCriteria", (DL_FUNC) &cluc_calculateInternalCriteria, 3},
+	{"cluc_calculateExternalCriteria", (DL_FUNC) &cluc_calculateExternalCriteria, 3},
+	{"cluc_calculateConcordances", (DL_FUNC) &cluc_calculateConcordances, 2},
+    {NULL, NULL, 0}
+};
+
+
+/* 
+ * ------------------------------------------------------------------------
+ * 
+ * "R_init_clusterCrit()" --
+ * 
+ * This function is automatically called by R when the package is loaded.
+ * It ensures efficient dispatch of calls to C functions (see Writing R
+ * extensions, § 5.4 Registering native routines).
+ * 
+ * ------------------------------------------------------------------------
+ */
+void
+R_init_clusterCrit(DllInfo * info)
+{
+    R_registerRoutines(info, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(info, FALSE);
+    R_forceSymbols(info, TRUE);
+}
 
 
 /* 

@@ -1,9 +1,9 @@
 % ===========================================================================
 % File: clusterCrit.Rnw
 %           Created: 2010-12-17 08:48:52
-% Last modification: 2012-11-13 17:18:39
+% Last modification: 2017-11-09 15:28:18
 % Author: Bernard Desgraupes
-% e-mmail: bdesgraupes@users.sourceforge.net
+% e-mail: bdesgraupes@users.sourceforge.net
 % ===========================================================================
 % 
 % % Vignette meta-information
@@ -52,7 +52,7 @@
 \author{Bernard Desgraupes\\
 University Paris Ouest\\
 Lab Modal'X}
-\date{\small April 2013}
+\date{\small November 2017}
 
 \maketitle
 
@@ -1525,7 +1525,7 @@ in section~\ref{subsec-coeff-prec-rapp}:
 \subsubsection{The Folkes-Mallows index}
 \label{subsubsec-ext-Folkes-Mallows}
 
-% % appelé aussi indice d'Ochiai
+% % also named Ochiai index
 
 The Folkes-Mallows index is defined like this:
 \begin{equation}
@@ -1600,7 +1600,7 @@ coefficients:
 
 The McNemar index is defined like this:
 \begin{equation}
-    \boxed{\mathcal{C}=\frac{nn-ny}{\sqrt{nn+ny}}}
+    \boxed{\mathcal{C}=\frac{yn-ny}{\sqrt{yn+ny}}}
     \label{eq-crit-McNemar}
 \end{equation}
 
@@ -1608,12 +1608,14 @@ Under the null hypothesis $H_{0}$ that the discordances between the
 partitions $P_{1}$ and $P_{2}$ are random, the index $\mathcal{C}$
 follows approximatively a normal distribution. It is an adaptation of
 the non-parametric test of McNemar for the comparison of frequencies
-between two paired samples: the statistic $\mathcal{C}^2$ (called the 
-$\chi^2$ distance) defined as
+between two paired samples: the statistic of McNemar's test (called the 
+$\chi^2$ distance) is the square of the index
 $$
-\mathcal{C}^2=\frac{(nn-ny)^2}{nn+ny}
+\mathcal{C}^2=\frac{(yn-ny)^2}{yn+ny}
 $$
-follows a $\chi^2$ distribution with 1 degree of freedom.
+and follows, under the null hypothesis of marginal homogeneity
+of the contingency table, a $\chi^2$ distribution with 1 degree of
+freedom.
 
 
 

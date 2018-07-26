@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "indices.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2015-07-17 21:15:05
+!              Last modification: 2018-07-26 11:14:02
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -156,22 +156,22 @@ SUBROUTINE cluc_crit_davies_bouldin(p,v)
       integer :: i, j
         
       mx = 0.0
-      d(:) = 0.0
       
       ! Ensure the intra-group mean distances
       call cluc_group_counts(p)
       m = sWgPtsBarySum / sKNum
 
       DO i=1,sNk
+       d(:) = 0.0
        ! Calculate the max of the D_ij quantities
        DO j=1,sNk
           IF (j == i) THEN
              ! Ignore
           ELSE IF (j > i) THEN
-             d(i) = (m(i) + m(j))/sBgPairsBary(i+(j-1)*(j-2)/2)
+             d(j) = (m(i) + m(j))/sBgPairsBary(i+((j-1)*(j-2))/2)
           ELSE
              ! sBgPairsBary is computed only for i < j
-             d(i) = (m(i) + m(j))/sBgPairsBary(j+(i-1)*(i-2)/2)
+             d(j) = (m(i) + m(j))/sBgPairsBary(j+((i-1)*(i-2))/2)
           END IF
        END DO
        mx = mx + maxval( d(:) ) 
@@ -297,7 +297,7 @@ SUBROUTINE cluc_crit_gdi(p,c1,c2,e,v)
              m = sBgPairsSum
              DO i=1,sNk-1
                 DO j=i+1,sNk
-                   idx = i+(j-1)*(j-2)/2
+                   idx = i+((j-1)*(j-2))/2
                    m(idx) = m(idx) / (sKNum(i)*sKNum(j))
                 END DO
              END DO
@@ -307,7 +307,7 @@ SUBROUTINE cluc_crit_gdi(p,c1,c2,e,v)
           CASE(5)
              DO i=1,sNk-1
                 DO j=i+1,sNk
-                   m(i+(j-1)*(j-2)/2) = (sWgPtsBarySum(i) + sWgPtsBarySum(j)) / (sKNum(i)+sKNum(j))
+                   m(i+((j-1)*(j-2))/2) = (sWgPtsBarySum(i) + sWgPtsBarySum(j)) / (sKNum(i)+sKNum(j))
                 END DO
              END DO
              num = minval(m)
@@ -582,9 +582,9 @@ SUBROUTINE cluc_crit_sd_dis(v)
           DO k2=1,sNk
               ! Calc the sum of inter-barycenter distances wrt G_k1
               IF (k2 > k1) THEN
-                  idx = k1 + (k2-1)*(k2-2)/2
+                  idx = k1 + ((k2-1)*(k2-2))/2
               ELSE IF (k1 > k2) THEN
-                  idx = k2 + (k1-1)*(k1-2)/2
+                  idx = k2 + ((k1-1)*(k1-2))/2
               ELSE
                   cycle
               END IF
@@ -929,7 +929,7 @@ SUBROUTINE cluc_crit_mcnemar(p1,p2,v)
       double precision, intent(out) :: v
         
       call cluc_cross_counts(p1,p2,sNr)
-      v = real(sNTb(2,2) - sNTb(2,1))/sqrt(real(sNTb(2,2) + sNTb(2,1)))
+      v = real(sNTb(1,2) - sNTb(2,1))/sqrt(real(sNTb(1,2) + sNTb(2,1)))
     
 END SUBROUTINE cluc_crit_mcnemar
 

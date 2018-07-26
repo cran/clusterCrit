@@ -1,7 +1,7 @@
 ! ===========================================================================
 ! File: "critUtils.f95"
 !                        Created: 2010-04-21 12:11:29
-!              Last modification: 2014-12-04 12:41:36
+!              Last modification: 2018-01-15 11:55:37
 ! Author: Bernard Desgraupes
 ! e-mail: <bernard.desgraupes@u-paris10.fr>
 ! This is part of the R package 'clusterCrit'.
@@ -1130,7 +1130,7 @@ SUBROUTINE cluc_inter_bary_distances(x,p,n,e)
          ! Calculate the distances
          DO i=1,sNk-1
             DO j=i+1,sNk
-               sBgPairsBary(i+(j-1)*(j-2)/2) = cluc_norm_ln(sKBar(i,:)-sKBar(j,:),n)
+               sBgPairsBary(i+((j-1)*(j-2))/2) = cluc_norm_ln(sKBar(i,:)-sKBar(j,:),n)
             END DO
          END DO
       END IF
@@ -1207,13 +1207,13 @@ SUBROUTINE cluc_bw_density(x,p,n,d)
       ! Ensure the group barycenters
       call cluc_group_barycenters(x,p)
       
-      c1 = 0
-      c2 = 0
-      c3 = 0
       d = 0.0
 
       DO k1=1,sNk-1
           DO k2=k1+1,sNk
+              c1 = 0
+              c2 = 0
+              c3 = 0
               h = (sKBar(k1,:) + sKBar(k2,:))/2
               DO i=1,sNr
                   IF (p(i) == k1 .or. p(i) == k2) THEN

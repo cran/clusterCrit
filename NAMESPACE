@@ -1,3 +1,7 @@
+# Refer to all C routines by their name (rather than strings)
+# See R_registerRoutines in R_init_clusterCrit()
+useDynLib(clusterCrit, .registration = TRUE)
+
 export(
 	"intCriteria",
 	"extCriteria",

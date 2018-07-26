@@ -1,7 +1,7 @@
 # ===========================================================================
 # File: "main.R"
 #                        Created: 2010-04-26 08:23:20
-#              Last modification: 2016-05-26 17:41:35
+#              Last modification: 2018-07-26 15:18:02
 # Author: Bernard Desgraupes
 # e-mail: <bernard.desgraupes@u-paris10.fr>
 # This is part of the R package 'clusterCrit'.
@@ -25,7 +25,7 @@ intCriteria <- function(traj, part, crit)
 	if (!( is.vector(part) && is.integer(part) )) {
 		stop("argument 'part' must be an integer vector")
 	}	
-	ans <- .Call("cluc_calculateInternalCriteria", traj, clust_canonify(part), buildCriteriaList(crit, TRUE), PACKAGE="clusterCrit")
+	ans <- .Call(cluc_calculateInternalCriteria, traj, clust_canonify(part), buildCriteriaList(crit, TRUE))
     return(ans)
 }
 
@@ -50,7 +50,7 @@ extCriteria <- function(part1, part2, crit)
 	if (length(part1) != length(part1)) {
 		stop("'part1' and 'part2' must be the same length")
 	}
-	ans <- .Call("cluc_calculateExternalCriteria", clust_canonify(part1), clust_canonify(part2), buildCriteriaList(crit, FALSE), PACKAGE="clusterCrit")
+	ans <- .Call(cluc_calculateExternalCriteria, clust_canonify(part1), clust_canonify(part2), buildCriteriaList(crit, FALSE))
     return(ans)
 }
 
@@ -85,7 +85,7 @@ concordance <- function(part1, part2)
 	if (!( is.vector(part2) && is.integer(part2) )) {
 		stop("argument 'part2' must be an integer vector")
 	}	
-	ans <- .Call("cluc_calculateConcordances", part1, part2, PACKAGE="clusterCrit")
+	ans <- .Call(cluc_calculateConcordances, part1, part2)
     return(ans)
 }
 
