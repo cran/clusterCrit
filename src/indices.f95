@@ -656,7 +656,7 @@ SUBROUTINE cluc_crit_silhouette(p,v)
       double precision, intent(out) :: v
       double precision, dimension(sNk) :: dk, sk
       double precision :: a, b, s
-      integer :: i, k, pn
+      integer :: i, k, pn, numberOfElements
       
       sk = 0
       call cluc_group_counts(p)
@@ -665,8 +665,13 @@ SUBROUTINE cluc_crit_silhouette(p,v)
          pn = p(i)
          
          ! Calc the average intra-cluster distance
-         a = sPtClDist(i,pn)/(sKNum(pn)-1)
-         
+         numberOfElements=sKNum(pn)
+         IF (numberOfElements == 1) THEN
+           a = 0
+         ELSE
+           a = sPtClDist(i,pn)/(numberOfElements-1)
+         END IF
+
          ! Calc the minimum average distance to other clusters
          DO k=1,sNk
             IF (k == pn) THEN
