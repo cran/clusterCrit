@@ -11,6 +11,7 @@
 
 MODULE logFile
    IMPLICIT NONE
+   use, intrinsic :: iso_fortran_env, only : int8
    
       ! Path to logs folder
       character (len=*), parameter :: logDir = "/Users/bernardo/Library/Logs/clusterCrit/"
@@ -93,7 +94,7 @@ MODULE logFile
    
    
    SUBROUTINE logLongInt (x)
-      integer(kind=8), intent(in) :: x
+      integer(kind=int8), intent(in) :: x
 
       call openLogFile
       write(logUnit, fmt='(i16)') x

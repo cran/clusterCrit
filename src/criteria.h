@@ -42,10 +42,10 @@ void F77_NAME(cluc_vector_trace)(double* a, int* n, double* result);
 void F77_NAME(cluc_matrix_trace)(double* a, int* n, double* result);
 
 void F77_NAME(cluc_calc_int_start)(int* inRows, int* inCols, int* inPart);
-void F77_NAME(cluc_calc_int_end)();
+void F77_NAME(cluc_calc_int_end)(void);
 
 void F77_NAME(cluc_calc_ext_start)(int* inRows, int* inNbClust1, int* inNbClust2);
-void F77_NAME(cluc_calc_ext_end)();
+void F77_NAME(cluc_calc_ext_end)(void);
 
 void F77_NAME(cluc_count_clusters)(int* a, int* n, int* result);
 void F77_NAME(cluc_int_set_flags)(int* inIndex);

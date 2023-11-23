@@ -1,5 +1,4 @@
 ### R code from vignette source 'clusterCrit.Rnw'
-### Encoding: UTF-8
 
 ###################################################
 ### code chunk number 1: clusterCrit.Rnw:1345-1362

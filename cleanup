@@ -12,11 +12,11 @@
 # INSTALL if present and option --clean was given, and by R CMD build when
 # preparing the package for building from its source. 
 
-rm -f src/*.{o,so,mod}
+rm -f src/*.o src/*.so src/*.mod
 rm -f src/Makevars
-rm -f config.{log,status}
+rm -f config.log config.status
 if test -e autom4te.cache; then \
 	rm -rf autom4te.cache/*; \
 	rmdir autom4te.cache; \
 fi
-rm -f vignettes/*.{tex,aux,bbl,blg,log,toc,idx,ind,ilg,out,synctex.gz} 
+rm -f vignettes/*.tex vignettes/*.aux vignettes/*.bbl vignettes/*.blg vignettes/*.log vignettes/*.toc vignettes/*.idx vignettes/*.ind vignettes/*.ilg vignettes/*.out vignettes/*.synctex.gz 

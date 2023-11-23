@@ -11,6 +11,7 @@
 MODULE critUtils
 
       use norms
+      use, intrinsic :: iso_fortran_env, only : INT8
 
       !! Declare static variables
       !! ------------------------
@@ -65,7 +66,7 @@ MODULE critUtils
       !! Number of pairs of points
       INTEGER, DIMENSION(:), ALLOCATABLE, SAVE :: sPNum
       !! Number of concordances and discordances between pairs of distances
-      INTEGER(KIND=8), DIMENSION(:), ALLOCATABLE, SAVE :: sConc
+      INTEGER(KIND=INT8), DIMENSION(:), ALLOCATABLE, SAVE :: sConc
       !! Table of number of pairs of 4 types: belonging/not_belonging to the
       !! same cluster wrt partition P1/P2
       INTEGER, DIMENSION(:,:), ALLOCATABLE, SAVE :: sNTb

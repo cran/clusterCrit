@@ -357,8 +357,7 @@ void cluc_errorMsg(int inErr) {
 		break;
 	}
 	
-	sprintf(msg,"cluscrit: error (%d) -> %s\n", inErr, errStr);
-	Rf_error(msg);
+	Rf_error("cluscrit: error (%d) -> %s\n", inErr, errStr);
 }
 
 
